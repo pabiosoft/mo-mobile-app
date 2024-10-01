@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:monimba_app/constants.dart';
+import 'package:monimba_app/screens/favorite/components/favorite_screen_body.dart';
 import 'package:monimba_app/screens/main/components/main_screen_body.dart';
 import 'package:sizer/sizer.dart';
 
@@ -16,38 +17,43 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   var currentIndex = 0;
-  
+
   @override
   Widget build(BuildContext context) {
-     Size size = MediaQuery.of(context).size;
+    Size size = MediaQuery.of(context).size;
 
     List<Widget> _navBarItem = <Widget>[
       const MainScreenBody(),
+      const FavBodyScreen(),
       const MainScreenBody(),
       const MainScreenBody(),
-      const MainScreenBody(),
-        
     ];
 
-    List<IconData> listOfIcons = [
-      FontAwesomeIcons.home,
-      FontAwesomeIcons.inbox,
-      FontAwesomeIcons.feed,
-      FontAwesomeIcons.userShield,
-    ];
 
-    
     return Scaffold(
-      appBar: mainTopBar(), 
-       body:_navBarItem[currentIndex],
-      bottomNavigationBar: bottomNavig(size, listOfIcons),
-
+      appBar: mainTopBar(),
+      body: _navBarItem[currentIndex],
+      bottomNavigationBar: bottomNavig(
+        size, // The size of the container, e.g., `MediaQuery.of(context).size`
+        [
+          Icons.home,
+          Icons.favorite,
+          Icons.notifications,
+          Icons.person
+        ], // List of icons
+        [
+          'Accueil',
+          'Favoris',
+          'Notifications',
+          'Profil'
+        ], // Corresponding labels
+      ),
     );
   }
 
-  Container bottomNavig(Size size, List<IconData> listOfIcons) {
+  Container bottomNavig(
+      Size size, List<IconData> listOfIcons, List<String> labels) {
     return Container(
-      // margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       height: size.width * .155,
       decoration: BoxDecoration(
         color: Colors.white,
@@ -58,7 +64,6 @@ class _MainScreenState extends State<MainScreen> {
             offset: const Offset(0, 10),
           ),
         ],
-        // borderRadius: BorderRadius.circular(50),
       ),
       child: ListView.builder(
         itemCount: listOfIcons.length,
@@ -75,14 +80,15 @@ class _MainScreenState extends State<MainScreen> {
           child: Stack(
             children: [
               Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Highlight Indicator
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 1300),
                     curve: Curves.fastLinearToSlowEaseIn,
                     margin: EdgeInsets.only(
                       bottom: index == currentIndex ? 0 : size.width * .029,
-                      right: size.width * .0422,
+                      right: size.width * .0612,
                       left: size.width * .0422,
                     ),
                     width: size.width * .140,
@@ -94,6 +100,7 @@ class _MainScreenState extends State<MainScreen> {
                       ),
                     ),
                   ),
+                  // Icon
                   Icon(
                     listOfIcons[index],
                     size: size.width * .050,
@@ -101,16 +108,25 @@ class _MainScreenState extends State<MainScreen> {
                         ? kBtnsColor
                         : Colors.black.withOpacity(0.8),
                   ),
-                  SizedBox(height: size.width * .03),
+                  // Label Text below Icon
+                  Text(
+                    labels[index], // Assign label based on index
+                    style: TextStyle(
+                      fontSize: size.width * .030,
+                      color: index == currentIndex
+                          ? kBtnsColor
+                          : Colors.black.withOpacity(0.6),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ],
               ),
-             ],
+            ],
           ),
         ),
       ),
     );
   }
-
 
   PreferredSize mainTopBar() {
     return PreferredSize(

@@ -33,7 +33,7 @@ class _MainScreenBodyState extends State<MainScreenBody> {
   ];
 
   final List<RealEstateCard> realEstateCards = [
-    RealEstateCard(
+    const RealEstateCard(
       imageUrl:
           'https://media.istockphoto.com/id/1165384568/fr/photo/complexe-moderne-européen-de-bâtiments-résidentiels.jpg?b=1&s=612x612&w=0&k=20&c=52wNRu6fSrCmbL7zFrduPNj5XwyiyZGWnnZVOJAg1qc=',
       houseName: 'Appartement Moderne sis a Kobaya Marche',
@@ -41,7 +41,7 @@ class _MainScreenBodyState extends State<MainScreenBody> {
       distance: 2.3,
       availableDate: 'Jan 2024',
     ),
-    RealEstateCard(
+    const RealEstateCard(
       imageUrl:
           'https://media.istockphoto.com/id/488120139/fr/photo/moderne-real-estate.jpg?b=1&s=612x612&w=0&k=20&c=Vgdp8Xvxopxyu74SdzSdog09iI5YzGkjG4wHhtqrWo0=',
       houseName: 'Villa sis a Kaloum Centre Ville',
@@ -539,8 +539,7 @@ class SearchBarFilters extends StatelessWidget {
         ),
         GestureDetector(
           onTap: () {
-            
-           // Trigger the bottom modal sheet when the button is clicked
+            // Trigger the bottom modal sheet when the button is clicked
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
@@ -579,7 +578,6 @@ class SearchBarFilters extends StatelessWidget {
   }
 }
 
-
 class FilterBottomSheet extends StatefulWidget {
   const FilterBottomSheet({super.key});
 
@@ -588,11 +586,10 @@ class FilterBottomSheet extends StatefulWidget {
 }
 
 class _FilterBottomSheetState extends State<FilterBottomSheet> {
-     // State variable to hold the current slider values
+  // State variable to hold the current slider values
   RangeValues _currentRangeValues = const RangeValues(500, 1500);
   @override
   Widget build(BuildContext context) {
-
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
       height: 90.h, // Set the height to 90% of the screen height
@@ -651,12 +648,13 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               width: double.infinity,
               // color: Colors.grey[300], // Placeholder for price range graph
               alignment: Alignment.center,
-              child: Image.network("https://images.pexels.com/photos/7045862/pexels-photo-7045862.jpeg?auto=compress&cs=tinysrgb&w=800"),
+              child: Image.network(
+                  "https://images.pexels.com/photos/7045862/pexels-photo-7045862.jpeg?auto=compress&cs=tinysrgb&w=800"),
             ),
             SizedBox(height: 2.h),
 
             // Slider
-           // Range Slider with dynamic value update
+            // Range Slider with dynamic value update
             SliderTheme(
               data: SliderThemeData(
                 trackHeight: 2.sp,
@@ -693,11 +691,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             ),
             SizedBox(height: 1.h),
             NumberSelectionRow(
-  options: const ['1', '2', '3', '4', '5', 'Tous'],
-  onSelected: (selectedValue) {
-    print('Selected value: $selectedValue'); // This will log the selected value when an option is tapped
-  },
-),
+              options: const ['1', '2', '3', '4', '5', 'Tous'],
+              onSelected: (selectedValue) {
+                print(
+                    'Selected value: $selectedValue'); // This will log the selected value when an option is tapped
+              },
+            ),
 
             SizedBox(height: 3.h),
 
@@ -712,11 +711,12 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             ),
             SizedBox(height: 1.h),
             NumberSelectionRow(
-  options: const ['1', '2', '3', '4', '5', 'Tous'],
-  onSelected: (selectedValue) {
-    print('Selected value: $selectedValue'); // This will log the selected value when an option is tapped
-  },
-),
+              options: const ['1', '2', '3', '4', '5', 'Tous'],
+              onSelected: (selectedValue) {
+                print(
+                    'Selected value: $selectedValue'); // This will log the selected value when an option is tapped
+              },
+            ),
 
             SizedBox(height: 3.h),
 
@@ -730,7 +730,9 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               ),
             ),
             SizedBox(height: 1.h),
-            _buildAmenitiesList(['Cuisine', 'Clim', 'Pisicine', 'Gym']),
+            const AmenitiesSelectionList(
+              amenities: ['Cuisine', 'Clim', 'Piscine', 'Gym'],
+            ),
 
             // Save Filter Button
             SizedBox(height: 5.h),
@@ -740,7 +742,8 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
                   Navigator.pop(context); // Close the bottom sheet on save
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.5.h),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.5.h),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -785,24 +788,82 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
 
   // Helper widget for number selection rows (Bedrooms, Beds)
 
+  // // Helper widget for amenities list
+  // Widget _buildAmenitiesList(List<String> amenities) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: amenities.map((amenity) {
+  //       return CheckboxListTile(
+  //         value: true,
+  //         onChanged: (bool? value) {},
+  //         title: Text(amenity),
+  //         controlAffinity: ListTileControlAffinity.leading,
+  //         activeColor: kBtnsColor,
+  //       );
+  //     }).toList(),
+  //   );
+  // }
+}
 
-  // Helper widget for amenities list
-  Widget _buildAmenitiesList(List<String> amenities) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: amenities.map((amenity) {
-        return CheckboxListTile(
-          value: true,
-          onChanged: (bool? value) {},
-          title: Text(amenity),
-          controlAffinity: ListTileControlAffinity.leading,
-          activeColor: kBtnsColor,
-        );
-      }).toList(),
+class AmenitiesSelectionList extends StatefulWidget {
+  final List<String> amenities;
+
+  const AmenitiesSelectionList({
+    Key? key,
+    required this.amenities,
+  }) : super(key: key);
+
+  @override
+  _AmenitiesSelectionListState createState() => _AmenitiesSelectionListState();
+}
+
+class _AmenitiesSelectionListState extends State<AmenitiesSelectionList> {
+  final Map<String, bool> _selectedAmenities = {};
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize all amenities as unchecked (false)
+    for (var amenity in widget.amenities) {
+      _selectedAmenities[amenity] = false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal, // Enable horizontal scrolling
+      child: Row(
+        children: widget.amenities.map((amenity) {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
+            child: FilterChip(
+              label: Text(
+                amenity,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                  color: _selectedAmenities[amenity]!
+                      ? Colors.white
+                      : kTertiaryColor,
+                ),
+              ),
+              selected: _selectedAmenities[amenity]!,
+              onSelected: (bool selected) {
+                setState(() {
+                  _selectedAmenities[amenity] = selected;
+                });
+              },
+              selectedColor: kBtnsColor, // Color when selected
+              backgroundColor: Colors.grey[200], // Color when not selected
+              checkmarkColor: Colors.white, // Checkmark color
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 }
-
 
 class NumberSelectionRow extends StatefulWidget {
   final List<String> options;
@@ -838,7 +899,9 @@ class _NumberSelectionRowState extends State<NumberSelectionRow> {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 1.h),
             decoration: BoxDecoration(
-              color: isSelected ? kTertiaryColor: Colors.transparent, // Highlight selected option
+              color: isSelected
+                  ? kTertiaryColor
+                  : Colors.transparent, // Highlight selected option
               border: Border.all(color: kBtnsColor),
               borderRadius: BorderRadius.circular(12),
             ),
@@ -846,7 +909,9 @@ class _NumberSelectionRowState extends State<NumberSelectionRow> {
               option,
               style: TextStyle(
                 fontSize: 12.sp,
-                color: isSelected ? Colors.white : kTertiaryColor, // Change text color based on selection
+                color: isSelected
+                    ? Colors.white
+                    : kTertiaryColor, // Change text color based on selection
                 fontWeight: FontWeight.bold,
               ),
             ),
