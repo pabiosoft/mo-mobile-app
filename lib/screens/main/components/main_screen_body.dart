@@ -119,6 +119,7 @@ class _MainScreenBodyState extends State<MainScreenBody> {
                             child: Text("Aucun élément disponible"));
                       } else {
                         return ListView.builder(
+                          physics: const BouncingScrollPhysics(),
                           itemCount: snapshot.data!.length,
                           itemBuilder: (context, index) {
                             final element = snapshot.data![index];
@@ -127,7 +128,9 @@ class _MainScreenBodyState extends State<MainScreenBody> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ElementDetails(element: element,),
+                                    builder: (context) => ElementDetails(
+                                      element: element,
+                                    ),
                                   ),
                                 );
                               },
