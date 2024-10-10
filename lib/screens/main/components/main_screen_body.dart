@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:logger/logger.dart';
 import 'package:monimba_app/constants.dart';
 import 'package:monimba_app/models/category.dart';
+import 'package:monimba_app/models/elements.dart';
 import 'package:monimba_app/screens/main/components/element_details.dart';
+import 'package:monimba_app/services/database/monimba_db_service.dart';
 import 'package:sizer/sizer.dart';
 
 class MainScreenBody extends StatefulWidget {
@@ -17,10 +20,13 @@ class MainScreenBody extends StatefulWidget {
 class _MainScreenBodyState extends State<MainScreenBody> {
   TextEditingController _searchControler = TextEditingController();
 
+  late Future<List<ElementModel>> futureElements;
+
   @override
   void initState() {
     super.initState();
-    // _searchControler = TextEditingController();
+    MonimbaDbService().loginUser('dev2@mo.com', 'dev2');
+    futureElements = MonimbaDbService().fetchElements();
   }
 
   final List<CategoryModel> categories = [
@@ -32,25 +38,25 @@ class _MainScreenBodyState extends State<MainScreenBody> {
     CategoryModel(name: 'Terrains', iconPath: 'assets/icons/land.svg'),
   ];
 
-  final List<RealEstateCard> realEstateCards = [
-    const RealEstateCard(
-      imageUrl:
-          'https://media.istockphoto.com/id/1165384568/fr/photo/complexe-moderne-européen-de-bâtiments-résidentiels.jpg?b=1&s=612x612&w=0&k=20&c=52wNRu6fSrCmbL7zFrduPNj5XwyiyZGWnnZVOJAg1qc=',
-      houseName: 'Appartement Moderne sis a Kobaya Marche',
-      rating: 4.5,
-      distance: 2.3,
-      availableDate: 'Jan 2024',
-    ),
-    const RealEstateCard(
-      imageUrl:
-          'https://media.istockphoto.com/id/488120139/fr/photo/moderne-real-estate.jpg?b=1&s=612x612&w=0&k=20&c=Vgdp8Xvxopxyu74SdzSdog09iI5YzGkjG4wHhtqrWo0=',
-      houseName: 'Villa sis a Kaloum Centre Ville',
-      rating: 4.8,
-      distance: 1.1,
-      availableDate: 'Fev 2024',
-    ),
-    // Add more cards...
-  ];
+  // final List<RealEstateCard> realEstateCards = [
+  //   const RealEstateCard(
+  //     imageUrl:
+  //         'https://media.istockphoto.com/id/1165384568/fr/photo/complexe-moderne-européen-de-bâtiments-résidentiels.jpg?b=1&s=612x612&w=0&k=20&c=52wNRu6fSrCmbL7zFrduPNj5XwyiyZGWnnZVOJAg1qc=',
+  //     houseName: 'Appartement Moderne sis a Kobaya Marche',
+  //     rating: 4.5,
+  //     distance: 2.3,
+  //     availableDate: 'Jan 2024',
+  //   ),
+  //   const RealEstateCard(
+  //     imageUrl:
+  //         'https://media.istockphoto.com/id/488120139/fr/photo/moderne-real-estate.jpg?b=1&s=612x612&w=0&k=20&c=Vgdp8Xvxopxyu74SdzSdog09iI5YzGkjG4wHhtqrWo0=',
+  //     houseName: 'Villa sis a Kaloum Centre Ville',
+  //     rating: 4.8,
+  //     distance: 1.1,
+  //     availableDate: 'Fev 2024',
+  //   ),
+  //   // Add more cards...
+  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -78,25 +84,68 @@ class _MainScreenBodyState extends State<MainScreenBody> {
                 physics: const BouncingScrollPhysics(),
                 child: SizedBox(
                   height: 63.h,
-                  child: ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: realEstateCards.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: EdgeInsets.symmetric(
-                            vertical: 1.h, horizontal: 4.w),
-                        child: GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ElementDetails(),
+                  child:
+                      // ListView.builder(
+                      //   physics: const BouncingScrollPhysics(),
+                      //   itemCount: realEstateCards.length,
+                      //   itemBuilder: (context, index) {
+                      //     return Padding(
+                      //       padding: EdgeInsets.symmetric(
+                      //           vertical: 1.h, horizontal: 4.w),
+                      //       child: GestureDetector(
+                      //         onTap: () {
+                      //           Navigator.push(
+                      //             context,
+                      //             MaterialPageRoute(
+                      //               builder: (context) => const ElementDetails(),
+                      //             ),
+                      //           );
+                      //         },
+                      //         child: realEstateCards[index],
+                      //       ),
+                      //     );
+                      //   },
+                      // ),
+                      FutureBuilder<List<ElementModel>>(
+                    future: futureElements,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        Logger().e('Erreur: ${snapshot.error}');
+                        return Center(child: Text("Erreur: ${snapshot.error}"));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                            child: Text("Aucun élément disponible"));
+                      } else {
+                        return ListView.builder(
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            final element = snapshot.data![index];
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ElementDetails(element: element,),
+                                  ),
+                                );
+                              },
+                              child: RealEstateCard(
+                                imageUrl: element.imageUrl.isNotEmpty
+                                    ? element.imageUrl
+                                    : 'https://images.pexels.com/photos/6970049/pexels-photo-6970049.jpeg?auto=compress&cs=tinysrgb&w=800',
+                                houseName: element.name,
+                                location: element.locate,
+                                price: element.price,
+                                availableDate: element.createdDate,
+                                city: element.city,
+                                rating: 2,
                               ),
                             );
                           },
-                          child: realEstateCards[index],
-                        ),
-                      );
+                        );
+                      }
                     },
                   ),
                 ),
@@ -222,16 +271,20 @@ class RealEstateCard extends StatelessWidget {
   final String imageUrl;
   final String houseName;
   final double rating;
-  final double distance;
-  final String availableDate;
+  final String city;
+  final DateTime availableDate;
+  final String location;
+  final String price;
 
   const RealEstateCard({
     super.key,
     required this.imageUrl,
     required this.houseName,
     required this.rating,
-    required this.distance,
+    required this.city,
     required this.availableDate,
+    required this.location,
+    required this.price,
   });
 
   @override
@@ -252,7 +305,7 @@ class RealEstateCard extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(12), bottom: Radius.circular(12)),
                 child: Image.network(
-                  imageUrl,
+                  "https://abc.monimba.com/$imageUrl",
                   height: 20.h,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -310,13 +363,17 @@ class RealEstateCard extends StatelessWidget {
                 // Rating
                 Row(
                   children: [
-                    Icon(Icons.star, color: Colors.orange, size: 14.sp),
+                    Icon(Icons.money, color: Colors.green, size: 14.sp),
                     SizedBox(width: 1.w),
-                    Text(
-                      rating.toString(),
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
+                    SizedBox(
+                      width: 20.w,
+                      child: Text(
+                        "$price gnf",
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -324,13 +381,17 @@ class RealEstateCard extends StatelessWidget {
                 // Distance
                 Row(
                   children: [
-                    Icon(Icons.location_on, color: Colors.blue, size: 14.sp),
+                    Icon(Icons.location_on, color: kTertiaryColor, size: 14.sp),
                     SizedBox(width: 1.w),
-                    Text(
-                      '${distance.toStringAsFixed(1)} km',
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
+                    SizedBox(
+                      width: 20.w,
+                      child: Text(
+                        city,
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
@@ -341,7 +402,7 @@ class RealEstateCard extends StatelessWidget {
                     Icon(Icons.calendar_today, color: Colors.grey, size: 14.sp),
                     SizedBox(width: 1.w),
                     Text(
-                      availableDate,
+                      "${availableDate.day.toString()}/${availableDate.month.toString()}/${availableDate.year.toString()}",
                       style: TextStyle(
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w600,

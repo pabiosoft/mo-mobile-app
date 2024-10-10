@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:monimba_app/constants.dart';
+import 'package:monimba_app/models/elements.dart';
 import 'package:sizer/sizer.dart';
 
 class ElementDetails extends StatefulWidget {
-  const ElementDetails({super.key});
+  const ElementDetails({super.key, required this.element});
+  final ElementModel element;
 
   @override
   State<ElementDetails> createState() => _ElementDetailsState();
@@ -50,6 +52,7 @@ class _ElementDetailsState extends State<ElementDetails> {
           centerTitle: true,
         ),
         body: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -59,11 +62,11 @@ class _ElementDetailsState extends State<ElementDetails> {
                   Container(
                     height: 35.h,
                     width: double.infinity,
-                    decoration: const BoxDecoration(
-                borderRadius: BorderRadius.vertical( bottom: Radius.circular(32)),
+                    decoration:  BoxDecoration(
+                borderRadius: const BorderRadius.vertical( bottom: Radius.circular(32)),
                       image: DecorationImage(
                         image: NetworkImage(
-                            'https://media.istockphoto.com/id/1165384568/fr/photo/complexe-moderne-europ%C3%A9en-de-b%C3%A2timents-r%C3%A9sidentiels.jpg?b=1&s=612x612&w=0&k=20&c=52wNRu6fSrCmbL7zFrduPNj5XwyiyZGWnnZVOJAg1qc='),
+                            "https://abc.monimba.com/${widget.element.imageUrl}"),
                         fit: BoxFit.cover,
                       ),
                       color: kbackGreyColor

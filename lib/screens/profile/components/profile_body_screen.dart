@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:monimba_app/constants.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:sizer/sizer.dart';
 
 class ProfileBodyScreen extends StatefulWidget {
   const ProfileBodyScreen({super.key});
@@ -11,6 +15,355 @@ class ProfileBodyScreen extends StatefulWidget {
 class _ProfileBodyScreenState extends State<ProfileBodyScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // Pic of connected user
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(80.0),
+                  child: Container(
+                    width: 25.w,
+                    height: 12.h,
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: const BoxDecoration(
+                      color: kPrimaryColor,
+                    ),
+                    child: Image.network(
+                      "",
+                      fit: BoxFit.cover,
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
+                        return Image.asset(
+                          kLogoMoNimbaPath,
+                        );
+                      },
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: const SizedBox(
+                              width: 100.0,
+                              height: 100.0,
+                              // color: Colors.white,
+                              child: CircleAvatar(
+                                backgroundColor: Colors.white,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              // Full name and Phone number
+              SizedBox(height: 2.h),
+              Center(
+                child: Text(
+                  "Diallo Thierno Moussa",
+                  style: TextStyle(
+                    color: kTertiaryColor,
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(height: 1.h),
+              Center(
+                child: Text(
+                  "(+224) 62X XX XX XX",
+                  style: TextStyle(
+                    color: kTertiaryColor.withOpacity(0.5),
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w100,
+                  ),
+                ),
+              ),
+              SizedBox(height: 2.h),
+              // Edit btn
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 1.5.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    primary: kBtnsColor,
+                  ),
+                  child: Text(
+                    "Editer Profil",
+                    style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          SizedBox(height: 2.h),
+          // Section My Real Estate and Support
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Biens Immobiliers',
+                  style: TextStyle(fontSize: 12.sp, color: kTertiaryColor),
+                ),
+                SizedBox(height: 1.h),
+                Container(
+                  width: double.infinity,
+                  height: 11.h,
+                  padding: const EdgeInsets.all(6.0),
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor,
+                    border: Border.all(
+                        color: kTertiaryColor.withOpacity(.5), width: 0.5),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      const BuildProfileMenu(
+                        mainIcon: Icons.home_work_outlined,
+                        text: "Mes biens",
+                        isCounter: true,
+                        counterValue: "02",
+                      ),
+                      SizedBox(height: 1.h),
+                      const BuildProfileMenu(
+                        mainIcon: Icons.headset_outlined,
+                        text: "Assistance",
+                        isCounter: false,
+                        counterValue: "0",
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Section Params and log out
+          SizedBox(height: 2.h),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Paramètres',
+                  style: TextStyle(fontSize: 12.sp, color: kTertiaryColor),
+                ),
+                SizedBox(height: 1.h),
+                Container(
+                  width: double.infinity,
+                  height: 18.h,
+                  padding: const EdgeInsets.all(6.0),
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor,
+                    border: Border.all(
+                        color: kTertiaryColor.withOpacity(.5), width: 0.5),
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(20),
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      const BuildProfileMenu2(
+                        mainIcon: Icons.home_work_outlined,
+                        text: "Push notifications",
+                      ),
+                      SizedBox(height: 1.h),
+                      const BuildProfileMenu(
+                        mainIcon: Icons.pin_outlined,
+                        text: "Code PIN",
+                        isCounter: false,
+                        counterValue: "0",
+                      ),
+                      SizedBox(height: 1.h),
+                      Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10.0),
+                            child: Container(
+                              padding: const EdgeInsets.all(5.0),
+                              decoration:
+                                  const BoxDecoration(color: kbackGreyColor),
+                              child: const Icon(
+                                Icons.logout_outlined,
+                                size: 25,
+                                color: kBtnsColor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 2.w,
+                          ),
+                          Text(
+                            "Se déconnecter",
+                            style:
+                                TextStyle(fontSize: 14.sp, color: kBtnsColor),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class BuildProfileMenu extends StatelessWidget {
+  const BuildProfileMenu({
+    super.key,
+    required this.mainIcon,
+    required this.text,
+    required this.isCounter,
+    required this.counterValue,
+  });
+
+  final IconData mainIcon;
+  final String text;
+  final bool isCounter;
+  final String counterValue;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Icon + Txt
+        Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10.0),
+              child: Container(
+                padding: const EdgeInsets.all(5.0),
+                decoration: const BoxDecoration(color: kbackGreyColor),
+                child: Icon(
+                  mainIcon,
+                  size: 25,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 2.w,
+            ),
+            Text(
+              text,
+              style: TextStyle(fontSize: 14.sp, color: kTertiaryColor),
+            ),
+            SizedBox(
+              width: 2.w,
+            ),
+            isCounter
+                ? Container(
+                    padding: const EdgeInsets.all(8.0),
+                    decoration: const BoxDecoration(
+                      color: kBtnsColor,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(20),
+                      ),
+                    ),
+                    child: Text(
+                      counterValue.toString(),
+                      style: TextStyle(fontSize: 9.sp, color: kPrimaryColor),
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ],
+        ),
+        // Arrow icon
+        const Icon(
+          Icons.arrow_forward_rounded,
+          size: 20,
+        )
+      ],
+    );
+  }
+}
+
+class BuildProfileMenu2 extends StatefulWidget {
+  const BuildProfileMenu2({
+    super.key,
+    required this.mainIcon,
+    required this.text,
+  });
+
+  final IconData mainIcon;
+  final String text;
+
+  @override
+  State<BuildProfileMenu2> createState() => _BuildProfileMenu2State();
+}
+
+class _BuildProfileMenu2State extends State<BuildProfileMenu2> {
+  bool isActive = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Icon + Txt
+        Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10.0),
+              child: Container(
+                padding: const EdgeInsets.all(5.0),
+                decoration: const BoxDecoration(color: kbackGreyColor),
+                child: Icon(
+                  widget.mainIcon,
+                  size: 25,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 2.w,
+            ),
+            Text(
+              widget.text,
+              style: TextStyle(fontSize: 14.sp, color: kTertiaryColor),
+            ),
+          ],
+        ),
+        // Switch
+        Switch(
+          value: isActive,
+          onChanged: (bool newValue) {
+            setState(() {
+              isActive = newValue;
+            });
+          },
+          activeColor: kBtnsColor,
+          activeTrackColor: kBtnsColor,
+        )
+      ],
+    );
   }
 }

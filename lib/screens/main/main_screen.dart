@@ -6,6 +6,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:monimba_app/constants.dart';
 import 'package:monimba_app/screens/favorite/components/favorite_screen_body.dart';
 import 'package:monimba_app/screens/main/components/main_screen_body.dart';
+import 'package:monimba_app/screens/notifications/notif_screen.dart';
+import 'package:monimba_app/screens/profile/profile_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class MainScreen extends StatefulWidget {
@@ -25,8 +27,8 @@ class _MainScreenState extends State<MainScreen> {
     List<Widget> _navBarItem = <Widget>[
       const MainScreenBody(),
       const FavBodyScreen(),
-      const MainScreenBody(),
-      const MainScreenBody(),
+      const NotifScreen(),
+      const ProfileScreen(),
     ];
 
 
