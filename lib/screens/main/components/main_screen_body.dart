@@ -19,44 +19,16 @@ class MainScreenBody extends StatefulWidget {
 
 class _MainScreenBodyState extends State<MainScreenBody> {
   TextEditingController _searchControler = TextEditingController();
-
+  late Future<List<ElementTypeModel>> futureElementTypes;
   late Future<List<ElementModel>> futureElements;
 
   @override
   void initState() {
     super.initState();
     MonimbaDbService().loginUser('dev2@mo.com', 'dev2');
+    futureElementTypes = MonimbaDbService().fetchElementType();
     futureElements = MonimbaDbService().fetchElements();
   }
-
-  final List<CategoryModel> categories = [
-    CategoryModel(name: 'ApartEments', iconPath: 'assets/icons/apartment.svg'),
-    CategoryModel(name: 'Maisons', iconPath: 'assets/icons/house.svg'),
-    CategoryModel(name: 'Bureaux', iconPath: 'assets/icons/office.svg'),
-    // CategoryModel(name: 'Villas', iconPath: 'assets/icons/villa.svg'),
-    CategoryModel(name: 'Boutiques', iconPath: 'assets/icons/shop.svg'),
-    CategoryModel(name: 'Terrains', iconPath: 'assets/icons/land.svg'),
-  ];
-
-  // final List<RealEstateCard> realEstateCards = [
-  //   const RealEstateCard(
-  //     imageUrl:
-  //         'https://media.istockphoto.com/id/1165384568/fr/photo/complexe-moderne-européen-de-bâtiments-résidentiels.jpg?b=1&s=612x612&w=0&k=20&c=52wNRu6fSrCmbL7zFrduPNj5XwyiyZGWnnZVOJAg1qc=',
-  //     houseName: 'Appartement Moderne sis a Kobaya Marche',
-  //     rating: 4.5,
-  //     distance: 2.3,
-  //     availableDate: 'Jan 2024',
-  //   ),
-  //   const RealEstateCard(
-  //     imageUrl:
-  //         'https://media.istockphoto.com/id/488120139/fr/photo/moderne-real-estate.jpg?b=1&s=612x612&w=0&k=20&c=Vgdp8Xvxopxyu74SdzSdog09iI5YzGkjG4wHhtqrWo0=',
-  //     houseName: 'Villa sis a Kaloum Centre Ville',
-  //     rating: 4.8,
-  //     distance: 1.1,
-  //     availableDate: 'Fev 2024',
-  //   ),
-  //   // Add more cards...
-  // ];
 
   @override
   Widget build(BuildContext context) {
@@ -77,40 +49,24 @@ class _MainScreenBodyState extends State<MainScreenBody> {
               // Categories scrollview with icons
               Padding(
                 padding: const EdgeInsets.only(top: 2.0),
-                child: RealEstateCategories(),
+                child: RealEstateCategories(
+                  futureElementTypes: futureElementTypes,
+                ),
               ),
               // Element card
               SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: SizedBox(
                   height: 63.h,
-                  child:
-                      // ListView.builder(
-                      //   physics: const BouncingScrollPhysics(),
-                      //   itemCount: realEstateCards.length,
-                      //   itemBuilder: (context, index) {
-                      //     return Padding(
-                      //       padding: EdgeInsets.symmetric(
-                      //           vertical: 1.h, horizontal: 4.w),
-                      //       child: GestureDetector(
-                      //         onTap: () {
-                      //           Navigator.push(
-                      //             context,
-                      //             MaterialPageRoute(
-                      //               builder: (context) => const ElementDetails(),
-                      //             ),
-                      //           );
-                      //         },
-                      //         child: realEstateCards[index],
-                      //       ),
-                      //     );
-                      //   },
-                      // ),
-                      FutureBuilder<List<ElementModel>>(
+                  child: FutureBuilder<List<ElementModel>>(
                     future: futureElements,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
+                        return const Center(
+                            child: CircularProgressIndicator(
+                          color: kBtnsColor,
+                          backgroundColor: kTertiaryColor,
+                        ));
                       } else if (snapshot.hasError) {
                         Logger().e('Erreur: ${snapshot.error}');
                         return Center(child: Text("Erreur: ${snapshot.error}"));
@@ -423,65 +379,83 @@ class RealEstateCard extends StatelessWidget {
 }
 
 class RealEstateCategories extends StatelessWidget {
-  final List<CategoryModel> categories = [
-    CategoryModel(name: 'Apartements', iconPath: 'assets/icons/appartment.svg'),
-    CategoryModel(name: 'Maisons', iconPath: 'assets/icons/house.svg'),
-    CategoryModel(name: 'Bureaux', iconPath: 'assets/icons/office.svg'),
-    CategoryModel(name: 'Boutiques', iconPath: 'assets/icons/shop.svg'),
-    CategoryModel(name: 'Terrains', iconPath: 'assets/icons/land.svg'),
-  ];
+  // final List<CategoryModel> categories = [
+  //   CategoryModel(name: 'Apartements', iconPath: 'assets/icons/appartment.svg'),
+  //   CategoryModel(name: 'Maisons', iconPath: 'assets/icons/house.svg'),
+  //   CategoryModel(name: 'Bureaux', iconPath: 'assets/icons/office.svg'),
+  //   CategoryModel(name: 'Boutiques', iconPath: 'assets/icons/shop.svg'),
+  //   CategoryModel(name: 'Terrains', iconPath: 'assets/icons/land.svg'),
+  // ];
 
-  RealEstateCategories({super.key});
+  final Future<List<ElementTypeModel>> futureElementTypes;
+
+  const RealEstateCategories({super.key, required this.futureElementTypes});
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 7.h, // Adjust height of the category section
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: categories.length,
-        itemBuilder: (context, index) {
-          final category = categories[index];
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                // shape: BoxShape.circle,
-                borderRadius: BorderRadius.circular(20.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: kbackGreyColor.withOpacity(0.3),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  // Category icon (using SvgPicture for SVG icons)
-                  SvgPicture.asset(
-                    category.iconPath,
-                    width: 5.w, // Icon size
-                    height: 5.w,
-                  ),
-                  SizedBox(width: 2.w),
-                  // Category label
-                  Text(
-                    category.name,
-                    style: TextStyle(
-                      fontSize: 8.sp,
-                      fontWeight: FontWeight.w500,
+    return FutureBuilder<List<ElementTypeModel>>(
+      future: futureElementTypes,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+              child: CircularProgressIndicator(
+            color: kBtnsColor,
+            backgroundColor: kTertiaryColor,
+          ));
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('Aucune categorie dispo'));
+        } else {
+          final categories = snapshot.data!;
+          return SizedBox(
+            height: 7.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: kbackGreyColor.withOpacity(0.3),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.category,
+                          size: 5.w, // Icon size
+                          color: kBtnsColor,
+                        ),
+                        SizedBox(width: 2.w),
+                        // Category label
+                        Text(
+                          category.name,
+                          style: TextStyle(
+                            fontSize: 8.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                );
+              },
             ),
           );
-        },
-      ),
+        }
+      },
     );
   }
 }

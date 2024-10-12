@@ -9,6 +9,7 @@ class MonimbaDbService {
 // URL de l'API
   final String loginUrl = "https://abc.monimba.com/api/login";
   final String elementsUrl = "https://abc.monimba.com/api/elements";
+  final String elementTypeUrl = "https://abc.monimba.com/api/element_types";
 
 // Méthode pour se connecter et obtenir le token
   Future<void> loginUser(String email, String password) async {
@@ -63,4 +64,42 @@ class MonimbaDbService {
       throw Exception("Erreur de chargement des données : $errorMessage");
     }
   }
+
+Future<List<ElementTypeModel>> fetchElementType() async {
+    // Récupérer le token sauvegardé
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? token = prefs.getString('jwtToken');
+
+    if (token == null) {
+      throw Exception("Token non trouvé. Authentifiez-vous d'abord.");
+    }
+
+    // Appel de l'API avec le token
+    final response = await http.get(
+      Uri.parse(elementTypeUrl),
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // final List<dynamic> elementsJson =
+      //     json.decode(response.body)['hydra:member'];
+      // return elementsJson.map((json) => ElementTypeModel.fromJson(json)).toList();
+
+       // Parse the response body as a list of dynamic elements
+    final List<dynamic> elementsJson = json.decode(response.body);
+
+    // Convert the list of JSON elements to a list of ElementTypeModel
+    return elementsJson.map((json) => ElementTypeModel.fromJson(json)).toList();
+    } else {
+      // Gestion des erreurs API
+      final errorMessage = json.decode(response.body)['message'] ??
+          "Erreur de chargement des données";
+      Logger().e('Erreur de chargement des données : $errorMessage');
+      throw Exception("Erreur de chargement des données : $errorMessage");
+    }
+  }
+
 }

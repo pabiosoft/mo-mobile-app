@@ -13,6 +13,8 @@ const kBtnsColor = Color(0xFFFE5200);
 
 /* -- Assets files -- */
 const kLogoMoNimbaPath = "assets/images/nimba_logo.png";
+const kImmoBgPath = "assets/images/immo_bg.jpg";
+const kImmoBg2Path = "assets/images/immo_bg2.jpg";
 const kNotificationIconPath = "assets/icons/bell.svg";
 const kPinLocationSvg = "assets/icons/locationPin.svg";
 const kFilterSettingSvg = "assets/icons/setting.svg";

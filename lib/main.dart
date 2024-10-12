@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:monimba_app/constants.dart';
 import 'package:monimba_app/providers/app_data.dart';
+import 'package:monimba_app/screens/auth/signin/signin_screen.dart';
+import 'package:monimba_app/screens/auth/signup/signup_screen.dart';
 import 'package:monimba_app/screens/main/main_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -58,7 +60,7 @@ class _MyAppState extends State<MyApp> {
             // textTheme: GoogleFonts.ralewayTextTheme(),
             // textTheme: GoogleFonts.nunitoTextTheme(),
           ),
-            home: const MainScreen()
+            home: const SignUpScreen()
           );
         },
       ),
