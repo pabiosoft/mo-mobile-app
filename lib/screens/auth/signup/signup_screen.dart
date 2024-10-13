@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:monimba_app/constants.dart';
+import 'package:monimba_app/screens/auth/signin/signin_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -204,7 +205,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           textAlign: TextAlign.center,
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                             Navigator.push(context, MaterialPageRoute(builder: (context)=> const SignInScreen() ));
+                          },
                           child: Text(
                             'Connectez-vous !',
                             style: TextStyle(

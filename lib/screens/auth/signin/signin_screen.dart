@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:monimba_app/constants.dart';
+import 'package:monimba_app/screens/auth/signup/signup_screen.dart';
+import 'package:monimba_app/screens/main/main_screen.dart';
 import 'package:sizer/sizer.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -168,7 +170,9 @@ class _SignInScreenState extends State<SignInScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                           Navigator.push(context, MaterialPageRoute(builder: (context)=> const MainScreen() ));
+                        },
                         child: Text(
                           'Se Connecter',
                           style: TextStyle(fontSize: 14.sp),
@@ -199,7 +203,9 @@ class _SignInScreenState extends State<SignInScreen> {
                           textAlign: TextAlign.center,
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                             Navigator.push(context, MaterialPageRoute(builder: (context)=> const SignUpScreen() ));
+                          },
                           child: Text(
                             'S\'incrire',
                             style: TextStyle(

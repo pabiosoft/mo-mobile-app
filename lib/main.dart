@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
             // textTheme: GoogleFonts.ralewayTextTheme(),
             // textTheme: GoogleFonts.nunitoTextTheme(),
           ),
-            home: const SignUpScreen()
+            home: const SignInScreen()
           );
         },
       ),

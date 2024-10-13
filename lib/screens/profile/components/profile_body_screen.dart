@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:monimba_app/constants.dart';
+import 'package:monimba_app/screens/profile/components/my_real_estate_screen.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
@@ -127,7 +128,7 @@ class _ProfileBodyScreenState extends State<ProfileBodyScreen> {
                 SizedBox(height: 1.h),
                 Container(
                   width: double.infinity,
-                  height: 11.h,
+                  height: 12.h,
                   padding: const EdgeInsets.all(6.0),
                   decoration: BoxDecoration(
                     color: kPrimaryColor,
@@ -139,18 +140,24 @@ class _ProfileBodyScreenState extends State<ProfileBodyScreen> {
                   ),
                   child: Column(
                     children: [
-                      const BuildProfileMenu(
+                       BuildProfileMenu(
                         mainIcon: Icons.home_work_outlined,
                         text: "Mes biens",
                         isCounter: true,
                         counterValue: "02",
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=> const MyRealEstateScreen() ));
+                        },
                       ),
                       SizedBox(height: 1.h),
-                      const BuildProfileMenu(
+                       BuildProfileMenu(
                         mainIcon: Icons.headset_outlined,
                         text: "Assistance",
                         isCounter: false,
                         counterValue: "0",
+                        onTap: () {
+
+                        },
                       ),
                     ],
                   ),
@@ -174,7 +181,7 @@ class _ProfileBodyScreenState extends State<ProfileBodyScreen> {
                 SizedBox(height: 1.h),
                 Container(
                   width: double.infinity,
-                  height: 18.h,
+                  height: 19.h,
                   padding: const EdgeInsets.all(6.0),
                   decoration: BoxDecoration(
                     color: kPrimaryColor,
@@ -191,11 +198,12 @@ class _ProfileBodyScreenState extends State<ProfileBodyScreen> {
                         text: "Push notifications",
                       ),
                       SizedBox(height: 1.h),
-                      const BuildProfileMenu(
+                       BuildProfileMenu(
                         mainIcon: Icons.pin_outlined,
                         text: "Code PIN",
                         isCounter: false,
                         counterValue: "0",
+                        onTap: (){},
                       ),
                       SizedBox(height: 1.h),
                       Row(
@@ -241,67 +249,71 @@ class BuildProfileMenu extends StatelessWidget {
     required this.mainIcon,
     required this.text,
     required this.isCounter,
-    required this.counterValue,
+    required this.counterValue, required this.onTap,
   });
 
   final IconData mainIcon;
   final String text;
   final bool isCounter;
   final String counterValue;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Icon + Txt
-        Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
-              child: Container(
-                padding: const EdgeInsets.all(5.0),
-                decoration: const BoxDecoration(color: kbackGreyColor),
-                child: Icon(
-                  mainIcon,
-                  size: 25,
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Icon + Txt
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: Container(
+                  padding: const EdgeInsets.all(5.0),
+                  decoration: const BoxDecoration(color: kbackGreyColor),
+                  child: Icon(
+                    mainIcon,
+                    size: 25,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(
-              width: 2.w,
-            ),
-            Text(
-              text,
-              style: TextStyle(fontSize: 14.sp, color: kTertiaryColor),
-            ),
-            SizedBox(
-              width: 2.w,
-            ),
-            isCounter
-                ? Container(
-                    padding: const EdgeInsets.all(8.0),
-                    decoration: const BoxDecoration(
-                      color: kBtnsColor,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(20),
+              SizedBox(
+                width: 2.w,
+              ),
+              Text(
+                text,
+                style: TextStyle(fontSize: 14.sp, color: kTertiaryColor),
+              ),
+              SizedBox(
+                width: 2.w,
+              ),
+              isCounter
+                  ? Container(
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: const BoxDecoration(
+                        color: kBtnsColor,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(20),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      counterValue.toString(),
-                      style: TextStyle(fontSize: 9.sp, color: kPrimaryColor),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          ],
-        ),
-        // Arrow icon
-        const Icon(
-          Icons.arrow_forward_rounded,
-          size: 20,
-        )
-      ],
+                      child: Text(
+                        counterValue.toString(),
+                        style: TextStyle(fontSize: 9.sp, color: kPrimaryColor),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ],
+          ),
+          // Arrow icon
+          const Icon(
+            Icons.arrow_forward_rounded,
+            size: 20,
+          )
+        ],
+      ),
     );
   }
 }

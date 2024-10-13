@@ -100,6 +100,7 @@ class _MainScreenBodyState extends State<MainScreenBody> {
                                 availableDate: element.createdDate,
                                 city: element.city,
                                 rating: 2,
+                                content: element.content,
                               ),
                             );
                           },
@@ -233,6 +234,7 @@ class RealEstateCard extends StatelessWidget {
   final String city;
   final DateTime availableDate;
   final String location;
+  final String content;
   final String price;
 
   const RealEstateCard({
@@ -243,7 +245,7 @@ class RealEstateCard extends StatelessWidget {
     required this.city,
     required this.availableDate,
     required this.location,
-    required this.price,
+    required this.price, required this.content,
   });
 
   @override
@@ -305,6 +307,20 @@ class RealEstateCard extends StatelessWidget {
                 fontSize: 12.sp,
                 fontWeight: FontWeight.bold,
                 color: kTertiaryColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          // House desc
+          Padding(
+            padding: EdgeInsets.symmetric( horizontal: 4.w),
+            child: Text(
+              content,
+              style: TextStyle(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey[500],
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
