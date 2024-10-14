@@ -7,7 +7,9 @@ import 'package:monimba_app/constants.dart';
 import 'package:monimba_app/models/elements.dart';
 import 'package:monimba_app/screens/profile/components/my_real_estate_details_screen.dart';
 import 'package:monimba_app/services/database/monimba_db_service.dart';
+import 'package:monimba_app/shared/empty_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 class MyRealEstateScreen extends StatefulWidget {
@@ -66,17 +68,14 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
                     future: userElements,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                            child: CircularProgressIndicator(
-                          color: kBtnsColor,
-                          backgroundColor: kTertiaryColor,
-                        ));
+                        return buildMyRealEstateShimmerEffectGridView();
                       } else if (snapshot.hasError) {
                         Logger().e('Erreur: ${snapshot.error}');
                         return Center(child: Text("Erreur: ${snapshot.error}"));
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(
-                            child: Text("Aucun élément disponible"));
+                        return const EmptyState(
+                          text: "Vos n'avez aucun bien pour le moment",
+                        );
                       } else {
                         return GridView.builder(
                           physics: const BouncingScrollPhysics(),
@@ -121,6 +120,60 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
         ),
       ),
     );
+  }
+
+  Widget buildMyRealEstateShimmerEffectGridView() {
+    return GridView.builder(
+  physics: const BouncingScrollPhysics(),
+  itemCount: 8, // Number of shimmer items to show during loading
+  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+    crossAxisCount: 2,
+    childAspectRatio: 0.6,
+  ),
+  itemBuilder: (context, index) {
+    final isOdd = index % 2 == 1;
+    return Shimmer.fromColors(
+  baseColor: Colors.grey[300]!,
+  highlightColor: Colors.grey[100]!,
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      // Shimmering Image placeholder
+      ClipRRect(
+        borderRadius: BorderRadius.circular(25),
+        child: Container(
+          color: Colors.grey[300],
+          height: 20.h,
+          width: 35.w,
+        ),
+      ),
+      SizedBox(height: 1.h),
+      // Shimmering price text placeholder
+      Container(
+        color: Colors.grey[300],
+        width: 15.w,
+        height: 12.sp,
+      ),
+      SizedBox(height: 1.h),
+      // Shimmering name text placeholder
+      Container(
+        color: Colors.grey[300],
+        width: 30.w,
+        height: 11.sp,
+      ),
+      SizedBox(height: 1.h),
+      // Shimmering size text placeholder
+      Container(
+        color: Colors.grey[300],
+        width: 35.w,
+        height: 9.sp,
+      ),
+    ],
+  ),
+);
+
+  },
+);
   }
 }
 

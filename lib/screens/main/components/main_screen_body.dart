@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
+import 'package:lottie/lottie.dart';
 import 'package:monimba_app/constants.dart';
 import 'package:monimba_app/models/category.dart';
 import 'package:monimba_app/models/elements.dart';
 import 'package:monimba_app/screens/main/components/element_details.dart';
 import 'package:monimba_app/services/database/monimba_db_service.dart';
+import 'package:monimba_app/shared/empty_state.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 class MainScreenBody extends StatefulWidget {
@@ -76,17 +80,29 @@ class _MainScreenBodyState extends State<MainScreenBody> {
                     future: futureElements,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                            child: CircularProgressIndicator(
-                          color: kBtnsColor,
-                          backgroundColor: kTertiaryColor,
-                        ));
+                        return buildRealEstateCardShimmerEffectList();
                       } else if (snapshot.hasError) {
                         Logger().e('Erreur: ${snapshot.error}');
-                        return Center(child: Text("Erreur: ${snapshot.error}"));
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  color: Colors.red, size: 150),
+                              SizedBox(height: 2.h),
+                              Text(
+                                "Erreur: ${snapshot.error}",
+                                style: TextStyle(
+                                    fontSize: 14.sp, color: kTitleColor),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        );
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(
-                            child: Text("Aucun bien disponible"));
+                        return const EmptyState(
+                          text: "Aucun bien disponible pour le moment",
+                        );
                       } else {
                         return ListView.builder(
                           physics: const BouncingScrollPhysics(),
@@ -124,10 +140,6 @@ class _MainScreenBodyState extends State<MainScreenBody> {
                   ),
                 ),
               ),
-              // Text(
-              //   "MONIMBA PROJECT",
-              //   style: TextStyle(fontSize: 21.sp, color: kPrimaryColor),
-              // ),
             ],
           ),
         ),
@@ -237,6 +249,92 @@ class _MainScreenBodyState extends State<MainScreenBody> {
                   child: const NotificationIconWithBadge(notificationCount: 5))
             ]),
       ),
+    );
+  }
+
+  Widget buildRealEstateCardShimmerEffectList() {
+    return ListView.builder(
+      physics: const BouncingScrollPhysics(),
+      itemCount: 8,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Shimmer for image placeholder
+                  Container(
+                    height: 20.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(12),
+                        bottom: Radius.circular(12),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Shimmer for house name
+                        Container(
+                          height: 2.h,
+                          width: 40.w,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(height: 1.h),
+                        // Shimmer for house description
+                        Container(
+                          height: 2.h,
+                          width: 60.w,
+                          color: Colors.grey[300],
+                        ),
+                        SizedBox(height: 1.h),
+                        // Shimmer for the footer with rating, location, and calendar placeholders
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // Price placeholder
+                            Container(
+                              height: 2.h,
+                              width: 20.w,
+                              color: Colors.grey[300],
+                            ),
+                            // City placeholder
+                            Container(
+                              height: 2.h,
+                              width: 20.w,
+                              color: Colors.grey[300],
+                            ),
+                            // Date placeholder
+                            Container(
+                              height: 2.h,
+                              width: 20.w,
+                              color: Colors.grey[300],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -436,11 +534,7 @@ class _RealEstateCategoriesState extends State<RealEstateCategories> {
       future: widget.futureElementTypes,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-              child: CircularProgressIndicator(
-            color: kBtnsColor,
-            backgroundColor: kTertiaryColor,
-          ));
+          return buildMenuShimmerEffectList();
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -509,6 +603,58 @@ class _RealEstateCategoriesState extends State<RealEstateCategories> {
           );
         }
       },
+    );
+  }
+
+  Widget buildMenuShimmerEffectList() {
+    return SizedBox(
+      height: 7.h,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        itemCount: 6,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+            child: Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 5.w,
+                      height: 5.w,
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                    SizedBox(width: 2.w),
+                    Container(
+                      height: 8.sp,
+                      width: 10.w,
+                      color: Colors.grey,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }
@@ -628,7 +774,7 @@ class SearchBarFilters extends StatelessWidget {
             ),
           ),
         ),
-        GestureDetector(
+        InkWell(
           onTap: () {
             // Trigger the bottom modal sheet when the button is clicked
             showModalBottomSheet(
@@ -734,40 +880,62 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
               ),
             ),
             SizedBox(height: 2.h),
-            Container(
-              height: 20.h,
-              width: double.infinity,
-              // color: Colors.grey[300], // Placeholder for price range graph
-              alignment: Alignment.center,
-              child: Image.network(
-                  "https://images.pexels.com/photos/7045862/pexels-photo-7045862.jpeg?auto=compress&cs=tinysrgb&w=800"),
-            ),
-            SizedBox(height: 2.h),
 
-            // Slider
             // Range Slider with dynamic value update
-            SliderTheme(
-              data: SliderThemeData(
-                trackHeight: 2.sp,
-                thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10.sp),
-              ),
-              child: RangeSlider(
-                values: _currentRangeValues,
-                min: 0,
-                max: 300000,
-                divisions: 30,
-                labels: RangeLabels(
-                  _currentRangeValues.start.round().toString(),
-                  _currentRangeValues.end.round().toString(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 2.h),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        // "Min: ${_currentRangeValues.start.round()} GNF",
+                        "Min: ${NumberFormat("#,##0", "en_US").format(_currentRangeValues.start.round()).replaceAll(',', '.')} GNF",
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      Text(
+                        // "Max: ${_currentRangeValues.end.round()} GNF",
+                        "Min: ${NumberFormat("#,##0", "en_US").format(_currentRangeValues.end.round()).replaceAll(',', '.')} GNF",
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                onChanged: (RangeValues newRange) {
-                  setState(() {
-                    _currentRangeValues = newRange; // Update slider values
-                  });
-                },
-                activeColor: kBtnsColor, // Use your custom color if needed
-                inactiveColor: Colors.grey[300],
-              ),
+                SliderTheme(
+                  data: SliderThemeData(
+                    trackHeight: 2.sp,
+                    thumbShape:
+                        RoundSliderThumbShape(enabledThumbRadius: 10.sp),
+                  ),
+                  child: RangeSlider(
+                    values: _currentRangeValues,
+                    min: 0,
+                    max: 100000000,
+                    divisions: 100,
+                    labels: RangeLabels(
+                      NumberFormat("#,##0", "en_US").format(_currentRangeValues.start.round()).replaceAll(',', '.'),
+                      NumberFormat("#,##0", "en_US").format(_currentRangeValues.end.round()).replaceAll(',', '.'),
+                    ),
+                    onChanged: (RangeValues newRange) {
+                      setState(() {
+                        _currentRangeValues = newRange;
+                      });
+                    },
+                    activeColor: kBtnsColor,
+                    inactiveColor: Colors.grey[300],
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 3.h),
 
@@ -784,8 +952,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             NumberSelectionRow(
               options: const ['1', '2', '3', '4', '5', 'Tous'],
               onSelected: (selectedValue) {
-                print(
-                    'Selected value: $selectedValue'); // This will log the selected value when an option is tapped
               },
             ),
 
@@ -804,8 +970,6 @@ class _FilterBottomSheetState extends State<FilterBottomSheet> {
             NumberSelectionRow(
               options: const ['1', '2', '3', '4', '5', 'Tous'],
               onSelected: (selectedValue) {
-                print(
-                    'Selected value: $selectedValue'); // This will log the selected value when an option is tapped
               },
             ),
 
