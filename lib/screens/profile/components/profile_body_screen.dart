@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:logger/logger.dart';
 import 'package:monimba_app/constants.dart';
+import 'package:monimba_app/screens/auth/signin/signin_screen.dart';
 import 'package:monimba_app/screens/profile/components/my_real_estate_screen.dart';
+import 'package:monimba_app/services/database/monimba_db_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
@@ -14,6 +18,25 @@ class ProfileBodyScreen extends StatefulWidget {
 }
 
 class _ProfileBodyScreenState extends State<ProfileBodyScreen> {
+ int _propertyCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _getPropertyCount();
+  }
+
+Future<void> _getPropertyCount() async {
+    try {
+      int count = await MonimbaDbService().countElementsBasedOnUserEmail();
+      setState(() {
+        _propertyCount = count; // Update the counter
+      });
+    } catch (e) {
+      Logger().e('Error fetching property count: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -140,24 +163,26 @@ class _ProfileBodyScreenState extends State<ProfileBodyScreen> {
                   ),
                   child: Column(
                     children: [
-                       BuildProfileMenu(
+                      BuildProfileMenu(
                         mainIcon: Icons.home_work_outlined,
                         text: "Mes biens",
                         isCounter: true,
-                        counterValue: "02",
+                        counterValue: _propertyCount.toString().padLeft(2, '0'),
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> const MyRealEstateScreen() ));
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const MyRealEstateScreen()));
                         },
                       ),
                       SizedBox(height: 1.h),
-                       BuildProfileMenu(
+                      BuildProfileMenu(
                         mainIcon: Icons.headset_outlined,
                         text: "Assistance",
                         isCounter: false,
                         counterValue: "0",
-                        onTap: () {
-
-                        },
+                        onTap: () {},
                       ),
                     ],
                   ),
@@ -198,38 +223,130 @@ class _ProfileBodyScreenState extends State<ProfileBodyScreen> {
                         text: "Push notifications",
                       ),
                       SizedBox(height: 1.h),
-                       BuildProfileMenu(
+                      BuildProfileMenu(
                         mainIcon: Icons.pin_outlined,
                         text: "Code PIN",
                         isCounter: false,
                         counterValue: "0",
-                        onTap: (){},
+                        onTap: () {},
                       ),
                       SizedBox(height: 1.h),
-                      Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10.0),
-                            child: Container(
-                              padding: const EdgeInsets.all(5.0),
-                              decoration:
-                                  const BoxDecoration(color: kbackGreyColor),
-                              child: const Icon(
-                                Icons.logout_outlined,
-                                size: 25,
-                                color: kBtnsColor,
+                      InkWell(
+                        onTap: () async {
+                          bool? shouldLogout = await showDialog(
+                            context: context,
+                            builder: (context) => Dialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(20.0),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Confirmation',
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: kTitleColor,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2.h),
+                                    Text(
+                                      'Voulez-vous vous déconnecter ?',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: kTertiaryColor,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2.h),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceAround,
+                                      children: [
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.grey[300],
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          onPressed: () =>
+                                              Navigator.pop(context, false),
+                                          child: Text(
+                                            'Non',
+                                            style: TextStyle(
+                                              fontSize: 12.sp,
+                                              color: kTertiaryColor,
+                                            ),
+                                          ),
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: kBtnsColor,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          onPressed: () =>
+                                              Navigator.pop(context, true),
+                                          child: Text(
+                                            'Oui',
+                                            style: TextStyle(
+                                              fontSize: 12.sp,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(
-                            width: 2.w,
-                          ),
-                          Text(
-                            "Se déconnecter",
-                            style:
-                                TextStyle(fontSize: 14.sp, color: kBtnsColor),
-                          ),
-                        ],
+                          );
+
+                          if (shouldLogout ?? false) {
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            await prefs.remove('jwtToken');
+                            // ignore: use_build_context_synchronously
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const SignInScreen()),
+                            );
+                          }
+                        },
+                        child: Row(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10.0),
+                              child: Container(
+                                padding: const EdgeInsets.all(5.0),
+                                decoration:
+                                    const BoxDecoration(color: kbackGreyColor),
+                                child: const Icon(
+                                  Icons.logout_outlined,
+                                  size: 25,
+                                  color: kBtnsColor,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 2.w,
+                            ),
+                            Text(
+                              "Se déconnecter",
+                              style:
+                                  TextStyle(fontSize: 14.sp, color: kBtnsColor),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -249,7 +366,8 @@ class BuildProfileMenu extends StatelessWidget {
     required this.mainIcon,
     required this.text,
     required this.isCounter,
-    required this.counterValue, required this.onTap,
+    required this.counterValue,
+    required this.onTap,
   });
 
   final IconData mainIcon;

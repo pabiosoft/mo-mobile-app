@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:monimba_app/constants.dart';
+import 'package:monimba_app/models/elements.dart';
 import 'package:monimba_app/screens/profile/components/my_real_estate_details_screen.dart';
+import 'package:monimba_app/services/database/monimba_db_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 
 class MyRealEstateScreen extends StatefulWidget {
@@ -13,6 +18,15 @@ class MyRealEstateScreen extends StatefulWidget {
 }
 
 class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
+  late Future<List<ElementModel>> userElements;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    userElements = MonimbaDbService().fetchElementsBasedOnUserEmail();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -45,56 +59,62 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //   children: [
-              //     Column(
-              //       crossAxisAlignment: CrossAxisAlignment.start,
-              //       children: [
-              //         Text(
-              //           'Ici,vos',
-              //           style: TextStyle(fontSize: 15.sp, color: Colors.black),
-              //         ),
-              //         Text(
-              //           'Biens Immobiliers',
-              //           style: TextStyle(
-              //               fontSize: 18.sp, fontWeight: FontWeight.bold),
-              //         ),
-              //       ],
-              //     ),
-              //     InkWell(onTap: (){
-              //       Navigator.pop(context);
-              //     }, child: const Icon(Icons.arrow_back_rounded, color: kBtnsColor, size: 50)),
-              //   ],
-              // ),
               // SizedBox(height: 2.h,),
               // Real estates display
               Expanded(
-                child: GridView.builder(
-                  itemCount: 5,
-                  physics: const BouncingScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.6,
-                  ),
-                  itemBuilder: (context, index) {
-                    // Applying different margins based on index to achieve offset
-                    final isOdd = index % 2 == 1;
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        top: isOdd
-                            ? 30.0
-                            : 0.0, 
-                        left: 16.0,
-                        right: 8.0,
-                        bottom: 8.0,
-                      ),
-                      child: InkWell(onTap: () {
-                         Navigator.push(context, MaterialPageRoute(builder: (context)=> const MyRealEstateDetailsScreen() ));
-                      }, child: const PropertyCard()),
-                    );
-                  },
-                ),
+                child: FutureBuilder<List<ElementModel>>(
+                    future: userElements,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                            child: CircularProgressIndicator(
+                          color: kBtnsColor,
+                          backgroundColor: kTertiaryColor,
+                        ));
+                      } else if (snapshot.hasError) {
+                        Logger().e('Erreur: ${snapshot.error}');
+                        return Center(child: Text("Erreur: ${snapshot.error}"));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                            child: Text("Aucun élément disponible"));
+                      } else {
+                        return GridView.builder(
+                          physics: const BouncingScrollPhysics(),
+                          itemCount: snapshot.data!.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.6,
+                          ),
+                          itemBuilder: (context, index) {
+                            final element = snapshot.data![index];
+                            // Applying different margins based on index to achieve offset
+                            final isOdd = index % 2 == 1;
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                top: isOdd ? 30.0 : 0.0,
+                                left: 16.0,
+                                right: 8.0,
+                                bottom: 8.0,
+                              ),
+                              child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                MyRealEstateDetailsScreen(
+                                                  element: element,
+                                                )));
+                                  },
+                                  child: PropertyCard(
+                                    element: element,
+                                  )),
+                            );
+                          },
+                        );
+                      }
+                    }),
               ),
             ],
           ),
@@ -105,12 +125,9 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
 }
 
 class PropertyCard extends StatelessWidget {
-  // final Property property;
+  final ElementModel element;
 
-  // PropertyCard({required this.property});
-  const PropertyCard({
-    super.key,
-  });
+  const PropertyCard({super.key, required this.element});
 
   @override
   Widget build(BuildContext context) {
@@ -120,32 +137,46 @@ class PropertyCard extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(25),
           child: Image.network(
-            'https://images.pexels.com/photos/28873273/pexels-photo-28873273/free-photo-of-charmante-maison-de-campagne-aux-tuiles-rouges.jpeg?auto=compress&cs=tinysrgb&w=800',
+            element.imageUrl != ''
+                ? 'https://abc.monimba.com/${element.imageUrl}'
+                : 'https://images.pexels.com/photos/28873273/pexels-photo-28873273/free-photo-of-charmante-maison-de-campagne-aux-tuiles-rouges.jpeg?auto=compress&cs=tinysrgb&w=800',
             fit: BoxFit.cover,
             height: 20.h,
             width: 35.w,
           ),
         ),
         SizedBox(height: 1.h),
-        Text(
-          '200.450.000 gnf',
-          style: TextStyle(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.bold,
+        SizedBox(
+          width: 50.w,
+          child: Text(
+            '${NumberFormat("#,##0", "en_US").format(int.parse(element.price)).replaceAll(',', '.')} gnf',
+            style: TextStyle(
+              fontSize: 12.sp,
+              fontWeight: FontWeight.bold,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        Text(
-          "Maison X",
-          style: TextStyle(
-            fontSize: 11.sp,
-            fontWeight: FontWeight.w100,
+        SizedBox(
+          width: 50.w,
+          child: Text(
+            element.name,
+            style: TextStyle(
+              fontSize: 11.sp,
+              fontWeight: FontWeight.w100,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        Text(
-          '2150 M²',
-          style: TextStyle(
-            fontSize: 9.sp,
-            fontWeight: FontWeight.w300,
+        SizedBox(
+          width: 50.w,
+          child: Text(
+            '${element.size} M²',
+            style: TextStyle(
+              fontSize: 9.sp,
+              fontWeight: FontWeight.w300,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],

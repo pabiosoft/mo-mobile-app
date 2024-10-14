@@ -30,12 +30,16 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    // _precacheImageAtLaunch();
+    _precacheImageAtLaunch();
   }
 
   void _precacheImageAtLaunch() {
     const appLogoImage = AssetImage(kLogoMoNimbaPath);
+    const appImmoBg = AssetImage(kImmoBgPath);
+    const appImmoBg2 = AssetImage(kImmoBg2Path);
     precacheImage(appLogoImage, context);
+    precacheImage(appImmoBg, context);
+    precacheImage(appImmoBg2, context);
   }
 
   // This widget is the root of your application.

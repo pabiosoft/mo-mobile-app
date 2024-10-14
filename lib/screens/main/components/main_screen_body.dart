@@ -21,13 +21,26 @@ class _MainScreenBodyState extends State<MainScreenBody> {
   TextEditingController _searchControler = TextEditingController();
   late Future<List<ElementTypeModel>> futureElementTypes;
   late Future<List<ElementModel>> futureElements;
+  String? selectedCategory;
 
   @override
   void initState() {
     super.initState();
-    MonimbaDbService().loginUser('dev2@mo.com', 'dev2');
     futureElementTypes = MonimbaDbService().fetchElementType();
     futureElements = MonimbaDbService().fetchElements();
+  }
+
+  void onCategorySelected(String category) {
+    setState(() {
+      selectedCategory = category;
+      if (selectedCategory != 'Tous') {
+        futureElements = MonimbaDbService().fetchElementsByCategory(
+            category); // Fetch elements based on selected category
+      } else {
+        futureElements = MonimbaDbService().fetchElements();
+      }
+      // Logger().i("Category selected is : $selectedCategory");
+    });
   }
 
   @override
@@ -51,6 +64,7 @@ class _MainScreenBodyState extends State<MainScreenBody> {
                 padding: const EdgeInsets.only(top: 2.0),
                 child: RealEstateCategories(
                   futureElementTypes: futureElementTypes,
+                  onCategorySelected: onCategorySelected,
                 ),
               ),
               // Element card
@@ -72,7 +86,7 @@ class _MainScreenBodyState extends State<MainScreenBody> {
                         return Center(child: Text("Erreur: ${snapshot.error}"));
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                         return const Center(
-                            child: Text("Aucun élément disponible"));
+                            child: Text("Aucun bien disponible"));
                       } else {
                         return ListView.builder(
                           physics: const BouncingScrollPhysics(),
@@ -245,172 +259,181 @@ class RealEstateCard extends StatelessWidget {
     required this.city,
     required this.availableDate,
     required this.location,
-    required this.price, required this.content,
+    required this.price,
+    required this.content,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image and Heart Icon Overlay
-          Stack(
-            children: [
-              // Product Image
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(12), bottom: Radius.circular(12)),
-                child: Image.network(
-                  "https://abc.monimba.com/$imageUrl",
-                  height: 20.h,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              // Heart Icon (Favorite)
-              Positioned(
-                right: 10,
-                top: 10,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 6,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.favorite_border,
-                    color: Colors.red,
-                    size: 22.sp,
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          // House Name
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
-            child: Text(
-              houseName,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.bold,
-                color: kTertiaryColor,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          // House desc
-          Padding(
-            padding: EdgeInsets.symmetric( horizontal: 4.w),
-            child: Text(
-              content,
-              style: TextStyle(
-                fontSize: 10.sp,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[500],
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-
-          SizedBox(height: 1.h),
-
-          // Footer: Rating, Distance, and Calendar
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image and Heart Icon Overlay
+            Stack(
               children: [
-                // Rating
-                Row(
-                  children: [
-                    Icon(Icons.money, color: Colors.green, size: 14.sp),
-                    SizedBox(width: 1.w),
-                    SizedBox(
-                      width: 20.w,
-                      child: Text(
-                        "$price gnf",
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
+                // Product Image
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(12), bottom: Radius.circular(12)),
+                  child: Image.network(
+                    "https://abc.monimba.com/$imageUrl",
+                    height: 20.h,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                // Distance
-                Row(
-                  children: [
-                    Icon(Icons.location_on, color: kTertiaryColor, size: 14.sp),
-                    SizedBox(width: 1.w),
-                    SizedBox(
-                      width: 20.w,
-                      child: Text(
-                        city,
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w600,
+                // Heart Icon (Favorite)
+                Positioned(
+                  right: 10,
+                  top: 10,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 6,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-                // Calendar
-                Row(
-                  children: [
-                    Icon(Icons.calendar_today, color: Colors.grey, size: 14.sp),
-                    SizedBox(width: 1.w),
-                    Text(
-                      "${availableDate.day.toString()}/${availableDate.month.toString()}/${availableDate.year.toString()}",
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
+                    child: Icon(
+                      Icons.favorite_border,
+                      color: Colors.red,
+                      size: 22.sp,
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+
+            // House Name
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 4.w),
+              child: Text(
+                houseName,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.bold,
+                  color: kTertiaryColor,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            // House desc
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.w),
+              child: Text(
+                content,
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[500],
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+            SizedBox(height: 1.h),
+
+            // Footer: Rating, Distance, and Calendar
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Rating
+                  Row(
+                    children: [
+                      Icon(Icons.money, color: Colors.green, size: 14.sp),
+                      SizedBox(width: 1.w),
+                      SizedBox(
+                        width: 20.w,
+                        child: Text(
+                          "$price gnf",
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Distance
+                  Row(
+                    children: [
+                      Icon(Icons.location_on,
+                          color: kTertiaryColor, size: 14.sp),
+                      SizedBox(width: 1.w),
+                      SizedBox(
+                        width: 20.w,
+                        child: Text(
+                          city,
+                          style: TextStyle(
+                            fontSize: 10.sp,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                  // Calendar
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today,
+                          color: Colors.grey, size: 14.sp),
+                      SizedBox(width: 1.w),
+                      Text(
+                        "${availableDate.day.toString()}/${availableDate.month.toString()}/${availableDate.year.toString()}",
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
 
-class RealEstateCategories extends StatelessWidget {
-  // final List<CategoryModel> categories = [
-  //   CategoryModel(name: 'Apartements', iconPath: 'assets/icons/appartment.svg'),
-  //   CategoryModel(name: 'Maisons', iconPath: 'assets/icons/house.svg'),
-  //   CategoryModel(name: 'Bureaux', iconPath: 'assets/icons/office.svg'),
-  //   CategoryModel(name: 'Boutiques', iconPath: 'assets/icons/shop.svg'),
-  //   CategoryModel(name: 'Terrains', iconPath: 'assets/icons/land.svg'),
-  // ];
-
+class RealEstateCategories extends StatefulWidget {
   final Future<List<ElementTypeModel>> futureElementTypes;
+  final Function(String) onCategorySelected;
 
-  const RealEstateCategories({super.key, required this.futureElementTypes});
+  const RealEstateCategories(
+      {super.key,
+      required this.futureElementTypes,
+      required this.onCategorySelected});
+
+  @override
+  State<RealEstateCategories> createState() => _RealEstateCategoriesState();
+}
+
+class _RealEstateCategoriesState extends State<RealEstateCategories> {
+  String? selectedCategory;
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<ElementTypeModel>>(
-      future: futureElementTypes,
+      future: widget.futureElementTypes,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
@@ -424,6 +447,7 @@ class RealEstateCategories extends StatelessWidget {
           return const Center(child: Text('Aucune categorie dispo'));
         } else {
           final categories = snapshot.data!;
+
           return SizedBox(
             height: 7.h,
             child: ListView.builder(
@@ -432,38 +456,51 @@ class RealEstateCategories extends StatelessWidget {
               itemCount: categories.length,
               itemBuilder: (context, index) {
                 final category = categories[index];
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20.0),
-                      boxShadow: [
-                        BoxShadow(
-                          color: kbackGreyColor.withOpacity(0.3),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.category,
-                          size: 5.w, // Icon size
-                          color: kBtnsColor,
-                        ),
-                        SizedBox(width: 2.w),
-                        // Category label
-                        Text(
-                          category.name,
-                          style: TextStyle(
-                            fontSize: 8.sp,
-                            fontWeight: FontWeight.w500,
+                final isSelected = category.name == selectedCategory;
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedCategory = category.name;
+                    });
+                    widget.onCategorySelected(selectedCategory!);
+                  },
+                  child: Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 1.w, vertical: 1.h),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: isSelected ? kTitleColor : Colors.white,
+                        borderRadius: BorderRadius.circular(20.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: kbackGreyColor.withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.category,
+                            size: 5.w, // Icon size
+                            color: isSelected ? kTertiaryColor : kBtnsColor,
+                          ),
+                          SizedBox(width: 2.w),
+                          // Category label
+                          Text(
+                            category.name,
+                            style: TextStyle(
+                              fontSize: 8.sp,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
