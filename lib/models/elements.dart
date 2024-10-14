@@ -56,6 +56,42 @@ class ElementModel {
     required this.category,
   });
 
+  Map<String, dynamic> toJson() {
+  return {
+    'id': uid,
+    'elementType': {
+      'name': elementTypeUid,
+    },
+    'user': {
+      'id': userUid,
+    },
+    'category': {
+      'id': categorieUid,
+    },
+    'name': name,
+    'content': content,
+    'description': description,
+    'locate': locate,
+    'price': price,
+    'size': size,
+    'createdDate': createdDate.toIso8601String(),
+    'verified': verified,
+    'exactLocate': exactLocate,
+    'desired': desired,
+    'city': city,
+    'isActif': isActif,
+    'images': images.map((image) => image.toJson()).toList(),
+    'pieces': pieces.map((piece) => piece.toJson()).toList(),
+    'user': user.toJson(),
+    'elementType': elementType.toJson(),
+    'category': category.toJson(),
+    '@context': apiContext,
+    '@id': apiId,
+    '@type': apiType,
+  };
+}
+
+
   factory ElementModel.fromJson(Map<String, dynamic> json) {
     return ElementModel(
       uid: json['id'] ?? '',
@@ -101,6 +137,14 @@ class ImageModel {
 
   ImageModel({required this.url, required this.alt, required this.isActif});
 
+   Map<String, dynamic> toJson() {
+    return {
+      'url': url,
+      'alt': alt,
+      'isActif': isActif,
+    };
+  }
+
   factory ImageModel.fromJson(Map<String, dynamic> json) {
     return ImageModel(
       url: json['url'] ?? '',
@@ -122,6 +166,15 @@ class PieceModel {
     required this.items,
     required this.isActif,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'description': description,
+      'surface': surface,
+      'items': items.map((item) => item.toJson()).toList(),
+      'isActif': isActif,
+    };
+  }
 
   factory PieceModel.fromJson(Map<String, dynamic> json) {
     return PieceModel(
@@ -145,6 +198,14 @@ class ItemModel {
     required this.type,
     required this.isActif,
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'space': space,
+      'type': type,
+      'isActif': isActif,
+    };
+  }
 
   factory ItemModel.fromJson(Map<String, dynamic> json) {
     return ItemModel(
@@ -178,6 +239,20 @@ class UserModel {
     required this.roles,
   });
 
+Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'telephone': telephone,
+      'fullName': fullName,
+      'age': age,
+      'imgUrl': imgUrl,
+      'badge': badge,
+      'bio': bio,
+      'roles': roles,
+    };
+  }
+
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: json['id'] ?? '',
@@ -199,6 +274,13 @@ class ElementTypeModel {
 
   ElementTypeModel({required this.name, required this.isActif});
 
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'isActif': isActif,
+    };
+  }
+
   factory ElementTypeModel.fromJson(Map<String, dynamic> json) {
     return ElementTypeModel(
       name: json['name'] ?? '',
@@ -214,6 +296,15 @@ class CatModel {
   bool isActif;
 
   CatModel({required this.name, required this.info, required this.imageUrl, required this.isActif});
+
+   Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'info': info,
+      'imageUrl': imageUrl,
+      'isActif': isActif,
+    };
+  }
 
   factory CatModel.fromJson(Map<String, dynamic> json) {
     return CatModel(

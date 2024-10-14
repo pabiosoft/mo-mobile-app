@@ -39,7 +39,6 @@ class MonimbaDbService {
 
 // Méthode pour récupérer les éléments
   Future<List<ElementModel>> fetchElements() async {
-    // Récupérer le token sauvegardé
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('jwtToken');
 
@@ -47,7 +46,23 @@ class MonimbaDbService {
       throw Exception("Token non trouvé. Authentifiez-vous d'abord.");
     }
 
-    // Appel de l'API avec le token
+    // Check for cached data and timestamp
+    String? cachedData = prefs.getString('cachedElements');
+    int? lastFetchTime = prefs.getInt('lastFetchTime');
+
+    // Get the current time in seconds
+    int currentTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Check if cached data is valid (e.g., not older than 1 hour)
+    if (cachedData != null &&
+        lastFetchTime != null &&
+        (currentTime - lastFetchTime < 3600000)) {
+      final List<dynamic> elementsJson =
+          json.decode(cachedData)['hydra:member'];
+      return elementsJson.map((json) => ElementModel.fromJson(json)).toList();
+    }
+
+    // API call
     final response = await http.get(
       Uri.parse(elementsUrl),
       headers: {
@@ -57,11 +72,14 @@ class MonimbaDbService {
     );
 
     if (response.statusCode == 200) {
+      // Cache the response and update the fetch time
+      await prefs.setString('cachedElements', response.body);
+      await prefs.setInt('lastFetchTime', currentTime);
+
       final List<dynamic> elementsJson =
           json.decode(response.body)['hydra:member'];
       return elementsJson.map((json) => ElementModel.fromJson(json)).toList();
     } else {
-      // Gestion des erreurs API
       final errorMessage = json.decode(response.body)['message'] ??
           "Erreur de chargement des données";
       Logger().e('Erreur de chargement des données : $errorMessage');
@@ -70,7 +88,6 @@ class MonimbaDbService {
   }
 
   Future<List<ElementTypeModel>> fetchElementType() async {
-    // Récupérer le token sauvegardé
     SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('jwtToken');
 
@@ -78,7 +95,24 @@ class MonimbaDbService {
       throw Exception("Token non trouvé. Authentifiez-vous d'abord.");
     }
 
-    // Appel de l'API avec le token
+    // Check for cached data
+    final cachedData = prefs.getString('cachedElementTypes');
+    int? lastFetchTime = prefs.getInt('lastFetchTime');
+
+    // Get the current time in seconds
+    int currentTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Check if cached data is valid (e.g., not older than 1 hour)
+    if (cachedData != null &&
+        lastFetchTime != null &&
+        (currentTime - lastFetchTime < 3600000)) {
+      final List<dynamic> cachedJson = json.decode(cachedData);
+      List<ElementTypeModel> cachedList =
+          cachedJson.map((json) => ElementTypeModel.fromJson(json)).toList();
+      return cachedList;
+    }
+
+    // If no cached data, fetch from API
     final response = await http.get(
       Uri.parse(elementTypeUrl),
       headers: {
@@ -101,9 +135,12 @@ class MonimbaDbService {
         ElementTypeModel(name: "Tous", isActif: true),
       );
 
+      // Cache the result
+      await prefs.setString('cachedElementTypes', json.encode(elementTypeList));
+
       return elementTypeList;
     } else {
-      // Gestion des erreurs API
+      // Error handling
       final errorMessage = json.decode(response.body)['message'] ??
           "Erreur de chargement des données";
       Logger().e('Erreur de chargement des données : $errorMessage');
@@ -116,6 +153,23 @@ class MonimbaDbService {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('jwtToken');
 
+    // Check for cached data
+    final cachedData = prefs.getString('cachedElements_$elementTypeName');
+    int? lastFetchTime = prefs.getInt('lastFetchTime');
+    // Get the current time in seconds
+    int currentTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Check if cached data is valid (e.g., not older than 1 hour)
+    if (cachedData != null &&
+        lastFetchTime != null &&
+        (currentTime - lastFetchTime < 3600000)) {
+      final List<dynamic> cachedJson = json.decode(cachedData);
+      List<ElementModel> cachedList =
+          cachedJson.map((json) => ElementModel.fromJson(json)).toList();
+      return cachedList;
+    }
+
+    // If no cached data, fetch from API
     final response = await http.get(
       Uri.parse(elementsUrl),
       headers: {
@@ -135,6 +189,12 @@ class MonimbaDbService {
       List<ElementModel> filteredData = data.where((element) {
         return element.elementType.name == elementTypeName;
       }).toList();
+
+      // Cache the filtered results only if there is data
+      if (filteredData.isNotEmpty) {
+        await prefs.setString('cachedElements_$elementTypeName',
+            json.encode(filteredData.map((e) => e.toJson()).toList()));
+      }
 
       return filteredData;
     } else {

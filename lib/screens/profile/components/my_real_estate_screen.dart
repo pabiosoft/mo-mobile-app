@@ -31,31 +31,33 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: kbackGreyColor,
-        appBar: AppBar(
-          backgroundColor: kBtnsColor,
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(
-              Icons.arrow_back_ios_new,
-              color: kPrimaryColor,
-              size: 22.sp,
-            ),
+    return Scaffold(
+      backgroundColor: kbackGreyColor,
+      appBar: AppBar(
+        backgroundColor: kBtnsColor,
+        elevation: 0,
+        brightness: Brightness.light,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.arrow_back_ios_new,
+            color: kPrimaryColor,
+            size: 22.sp,
           ),
-          title: Text(
-            "Mes biens immobiliers",
-            style: TextStyle(
-              color: kPrimaryColor,
-              fontSize: 16.sp,
-            ),
-          ),
-          centerTitle: true,
         ),
-        body: Padding(
+        title: Text(
+          "Mes biens immobiliers",
+          style: TextStyle(
+            color: kPrimaryColor,
+            fontSize: 16.sp,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

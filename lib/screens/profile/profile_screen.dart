@@ -14,12 +14,9 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
-    return const SafeArea(
-      child: Scaffold(
-        backgroundColor: kbackGreyColor,
-        // appBar: mainTopBar(),
-        body: ProfileBodyScreen(),
-      ),
+    return const Scaffold(
+      backgroundColor: kbackGreyColor,
+      body: SafeArea(child: ProfileBodyScreen()),
     );
   }
 }

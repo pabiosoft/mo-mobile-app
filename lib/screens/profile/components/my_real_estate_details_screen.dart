@@ -19,31 +19,33 @@ class MyRealEstateDetailsScreen extends StatefulWidget {
 class _MyRealEstateDetailsScreenState extends State<MyRealEstateDetailsScreen> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: kbackGreyColor,
-        appBar: AppBar(
-          backgroundColor: kBtnsColor,
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(
-              Icons.arrow_back_ios_new,
-              color: kPrimaryColor,
-              size: 22.sp,
-            ),
+    return Scaffold(
+      backgroundColor: kbackGreyColor,
+      appBar: AppBar(
+        backgroundColor: kBtnsColor,
+        elevation: 0,
+        brightness: Brightness.light,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.arrow_back_ios_new,
+            color: kPrimaryColor,
+            size: 22.sp,
           ),
-          title: Text(
-            "Details ${widget.element.name}",
-            style: TextStyle(
-              color: kPrimaryColor,
-              fontSize: 16.sp,
-            ),
-          ),
-          centerTitle: true,
         ),
-        body: SingleChildScrollView(
+        title: Text(
+          "Details ${widget.element.name}",
+          style: TextStyle(
+            color: kPrimaryColor,
+            fontSize: 16.sp,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
