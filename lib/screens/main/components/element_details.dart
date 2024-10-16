@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:monimba_app/constants.dart';
 import 'package:monimba_app/models/elements.dart';
@@ -15,44 +18,77 @@ class ElementDetails extends StatefulWidget {
 }
 
 class _ElementDetailsState extends State<ElementDetails> {
+  final Completer<GoogleMapController> _controller =
+      Completer<GoogleMapController>();
+
+late CameraPosition _kGoogleMapsAddie;
+
+Set<Marker> _markers = {}; // Define a set to hold the markers
+
+  @override
+  void initState() {
+    super.initState();
+    String exactLocate = widget.element.exactLocate; // Get the string
+    List<String> coordinates =
+        exactLocate.split(','); // Split into latitude and longitude
+
+    double latitude = double.parse(coordinates[0].trim());
+    double longitude = double.parse(coordinates[1].trim());
+
+    _kGoogleMapsAddie = CameraPosition(
+      target: LatLng(latitude, longitude),
+      zoom: 14.4746,
+    );
+
+    // Add a marker for the location
+  _markers.add(
+    Marker(
+      markerId: const MarkerId('real_estate_location'),
+      position: LatLng(latitude, longitude),
+      infoWindow: const InfoWindow(title: 'Adresse du bien'),
+    ),
+  );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: kbackGreyColor,
-        appBar: AppBar(
-          backgroundColor: kBtnsColor,
-          leading: GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: Icon(
-              Icons.arrow_back_ios_new,
+    return Scaffold(
+      backgroundColor: kbackGreyColor,
+      appBar: AppBar(
+        backgroundColor: kBtnsColor,
+        elevation: 0,
+        brightness: Brightness.light,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Icon(
+            Icons.arrow_back_ios_new,
+            color: kPrimaryColor,
+            size: 22.sp,
+          ),
+        ),
+        title: Text(
+          "Details",
+          style: TextStyle(
+            color: kPrimaryColor,
+            fontSize: 16.sp,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.favorite_border,
               color: kPrimaryColor,
               size: 22.sp,
             ),
+            onPressed: () {},
           ),
-          title: Text(
-            "Details",
-            style: TextStyle(
-              color: kPrimaryColor,
-              fontSize: 16.sp,
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.favorite_border,
-                color: kPrimaryColor,
-                size: 22.sp,
-              ),
-              onPressed: () {},
-            ),
-          ],
-          elevation: 10,
-          centerTitle: true,
-        ),
-        body: SingleChildScrollView(
+        ],
+        centerTitle: true,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,7 +320,7 @@ class _ElementDetailsState extends State<ElementDetails> {
                           height: 2.h,
                         ),
                         Text(
-                          "Consulter la maps ou carte pour plus de details",
+                          "Consulter la carte pour plus de details",
                           style: TextStyle(
                             fontSize: 12.sp,
                             color: Colors.grey[600],
@@ -293,15 +329,17 @@ class _ElementDetailsState extends State<ElementDetails> {
                         SizedBox(
                           height: 2.sp,
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
+                        SizedBox(
+                          height: 20.h,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(10.0),
-                            child: Image.network(
-                              'https://static.vecteezy.com/system/resources/previews/042/656/727/original/guinea-political-map-with-capital-conakry-most-important-cities-with-national-borders-vector.jpg',
-                              height: 20.h,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
+                            child: GoogleMap(
+                              mapType: MapType.hybrid,
+                              initialCameraPosition: _kGoogleMapsAddie,
+                              markers: _markers, 
+                              onMapCreated: (GoogleMapController controller) {
+                                _controller.complete(controller);
+                              },
                             ),
                           ),
                         ),
@@ -315,19 +353,18 @@ class _ElementDetailsState extends State<ElementDetails> {
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
                 decoration: BoxDecoration(
-                    color: kbackGreyColor,
-                    border: Border.all(color: kTertiaryColor, width: .1),
-                    borderRadius: BorderRadius.circular(32),
-                    gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            kBtnsColor.withOpacity(0.2),
-                            Colors.transparent,
-                          ],
-                        ),
-                    
-                    ),
+                  color: kbackGreyColor,
+                  border: Border.all(color: kTertiaryColor, width: .1),
+                  borderRadius: BorderRadius.circular(32),
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      kBtnsColor.withOpacity(0.2),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
                 child: Padding(
                   padding: EdgeInsets.all(2.w),
                   child: Row(

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:monimba_app/constants.dart';
 import 'package:monimba_app/models/elements.dart';
+import 'package:monimba_app/screens/profile/components/my_real_estate_create_update_form.dart';
 import 'package:monimba_app/screens/profile/components/my_real_estate_details_screen.dart';
 import 'package:monimba_app/services/database/monimba_db_service.dart';
 import 'package:monimba_app/shared/empty_state.dart';
@@ -121,61 +122,72 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RealEstateForm(),
+            ),
+          );
+        },
+        backgroundColor: kBtnsColor,
+        label: const Icon(Icons.home),
+      ),
     );
   }
 
   Widget buildMyRealEstateShimmerEffectGridView() {
     return GridView.builder(
-  physics: const BouncingScrollPhysics(),
-  itemCount: 8, // Number of shimmer items to show during loading
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: 0.6,
-  ),
-  itemBuilder: (context, index) {
-    final isOdd = index % 2 == 1;
-    return Shimmer.fromColors(
-  baseColor: Colors.grey[300]!,
-  highlightColor: Colors.grey[100]!,
-  child: Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // Shimmering Image placeholder
-      ClipRRect(
-        borderRadius: BorderRadius.circular(25),
-        child: Container(
-          color: Colors.grey[300],
-          height: 20.h,
-          width: 35.w,
-        ),
+      physics: const BouncingScrollPhysics(),
+      itemCount: 8, // Number of shimmer items to show during loading
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        childAspectRatio: 0.6,
       ),
-      SizedBox(height: 1.h),
-      // Shimmering price text placeholder
-      Container(
-        color: Colors.grey[300],
-        width: 15.w,
-        height: 12.sp,
-      ),
-      SizedBox(height: 1.h),
-      // Shimmering name text placeholder
-      Container(
-        color: Colors.grey[300],
-        width: 30.w,
-        height: 11.sp,
-      ),
-      SizedBox(height: 1.h),
-      // Shimmering size text placeholder
-      Container(
-        color: Colors.grey[300],
-        width: 35.w,
-        height: 9.sp,
-      ),
-    ],
-  ),
-);
-
-  },
-);
+      itemBuilder: (context, index) {
+        final isOdd = index % 2 == 1;
+        return Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Shimmering Image placeholder
+              ClipRRect(
+                borderRadius: BorderRadius.circular(25),
+                child: Container(
+                  color: Colors.grey[300],
+                  height: 20.h,
+                  width: 35.w,
+                ),
+              ),
+              SizedBox(height: 1.h),
+              // Shimmering price text placeholder
+              Container(
+                color: Colors.grey[300],
+                width: 15.w,
+                height: 12.sp,
+              ),
+              SizedBox(height: 1.h),
+              // Shimmering name text placeholder
+              Container(
+                color: Colors.grey[300],
+                width: 30.w,
+                height: 11.sp,
+              ),
+              SizedBox(height: 1.h),
+              // Shimmering size text placeholder
+              Container(
+                color: Colors.grey[300],
+                width: 35.w,
+                height: 9.sp,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 

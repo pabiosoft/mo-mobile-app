@@ -12,6 +12,10 @@
         android:label="MONIMBA"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyA_TOTrvDNNxDQZCt9RUIIFN7a__i15DYY"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -87,7 +87,7 @@ class _MainScreenState extends State<MainScreen> {
                   // Highlight Indicator
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 1300),
-                    curve: Curves.fastLinearToSlowEaseIn,
+                    curve: Curves.linearToEaseOut,
                     margin: EdgeInsets.only(
                       bottom: index == currentIndex ? 0 : size.width * .029,
                       right: size.width * .0612,
@@ -98,7 +98,7 @@ class _MainScreenState extends State<MainScreen> {
                     decoration: const BoxDecoration(
                       color: kBtnsColor,
                       borderRadius: BorderRadius.vertical(
-                        bottom: Radius.circular(10),
+                        top: Radius.circular(10),
                       ),
                     ),
                   ),
