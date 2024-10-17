@@ -21,9 +21,9 @@ class _ElementDetailsState extends State<ElementDetails> {
   final Completer<GoogleMapController> _controller =
       Completer<GoogleMapController>();
 
-late CameraPosition _kGoogleMapsAddie;
+  late CameraPosition _kGoogleMapsAddie;
 
-Set<Marker> _markers = {}; // Define a set to hold the markers
+  Set<Marker> _markers = {}; // Define a set to hold the markers
 
   @override
   void initState() {
@@ -41,13 +41,13 @@ Set<Marker> _markers = {}; // Define a set to hold the markers
     );
 
     // Add a marker for the location
-  _markers.add(
-    Marker(
-      markerId: const MarkerId('real_estate_location'),
-      position: LatLng(latitude, longitude),
-      infoWindow: const InfoWindow(title: 'Adresse du bien'),
-    ),
-  );
+    _markers.add(
+      Marker(
+        markerId: const MarkerId('real_estate_location'),
+        position: LatLng(latitude, longitude),
+        infoWindow: const InfoWindow(title: 'Adresse du bien'),
+      ),
+    );
   }
 
   @override
@@ -336,7 +336,7 @@ Set<Marker> _markers = {}; // Define a set to hold the markers
                             child: GoogleMap(
                               mapType: MapType.hybrid,
                               initialCameraPosition: _kGoogleMapsAddie,
-                              markers: _markers, 
+                              markers: _markers,
                               onMapCreated: (GoogleMapController controller) {
                                 _controller.complete(controller);
                               },
