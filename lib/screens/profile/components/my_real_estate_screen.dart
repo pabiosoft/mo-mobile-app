@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 import 'package:monimba_app/constants.dart';
 import 'package:monimba_app/models/elements.dart';
-import 'package:monimba_app/screens/profile/components/my_real_estate_create_update_form.dart';
 import 'package:monimba_app/screens/profile/components/my_real_estate_crud.dart';
 import 'package:monimba_app/screens/profile/components/my_real_estate_details_screen.dart';
 import 'package:monimba_app/services/database/monimba_db_service.dart';
@@ -36,7 +35,7 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
     return Scaffold(
       backgroundColor: kbackGreyColor,
       appBar: AppBar(
-        backgroundColor: kBtnsColor,
+        backgroundColor: kbackGreyColor,
         elevation: 0,
         brightness: Brightness.light,
         leading: GestureDetector(
@@ -45,14 +44,14 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
           },
           child: Icon(
             Icons.arrow_back_ios_new,
-            color: kPrimaryColor,
+            color: kTertiaryColor,
             size: 22.sp,
           ),
         ),
         title: Text(
           "Mes biens immobiliers",
           style: TextStyle(
-            color: kPrimaryColor,
+            color: kTertiaryColor,
             fontSize: 16.sp,
           ),
         ),

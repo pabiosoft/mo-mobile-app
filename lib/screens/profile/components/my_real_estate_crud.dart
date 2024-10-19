@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:monimba_app/constants.dart';
+import 'package:monimba_app/models/elements.dart';
+import 'package:monimba_app/services/database/monimba_db_service.dart';
 import 'package:sizer/sizer.dart';
 
 class MyRealEstateCRUD extends StatelessWidget {
@@ -9,9 +14,9 @@ class MyRealEstateCRUD extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        backgroundColor: kBtnsColor,
+        backgroundColor: kbackGreyColor,
         appBar: AppBar(
-          backgroundColor: kBtnsColor,
+          backgroundColor: kbackGreyColor,
           elevation: 0,
           brightness: Brightness.light,
           leading: GestureDetector(
@@ -20,14 +25,14 @@ class MyRealEstateCRUD extends StatelessWidget {
             },
             child: Icon(
               Icons.arrow_back_ios_new,
-              color: kPrimaryColor,
+              color: kTertiaryColor,
               size: 22.sp,
             ),
           ),
           title: Text(
             "Création d'un bien",
             style: TextStyle(
-              color: kPrimaryColor,
+              color: kTertiaryColor,
               fontSize: 16.sp,
             ),
           ),
@@ -58,6 +63,7 @@ class PropertyForm extends StatefulWidget {
 
 class _PropertyFormState extends State<PropertyForm> {
   int _currentStep = 0;
+  bool _showVerifyView = false;
   final PageController _pageController = PageController();
   // Form State Handlers
   final TextEditingController _nameController = TextEditingController();
@@ -65,6 +71,8 @@ class _PropertyFormState extends State<PropertyForm> {
   final TextEditingController _sizeController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final List<TextEditingController> _surfaceControllers = [];
+  final List<TextEditingController> _descriptionControllers = [];
 
   // Form fields
   bool _isForSale = true;
@@ -93,7 +101,7 @@ class _PropertyFormState extends State<PropertyForm> {
     "Kankan": ["Kankan", "Kouroussa", "Siguiri"],
     "Nzérékoré": ["Nzérékoré", "Beyla", "Yomou"],
   };
-  final List<String> _typeOfImmo = ["Type 1", "Type 2", "Type 3"];
+  // final List<String> _typeOfImmo = ["Type 1", "Type 2", "Type 3"];
 
   final TextEditingController _roomsController = TextEditingController();
   int _numberOfRooms = 0;
@@ -113,18 +121,28 @@ class _PropertyFormState extends State<PropertyForm> {
         (index) => TextEditingController(),
       );
 
+      // Initialize surface and description controllers
+      _surfaceControllers.clear();
+      _descriptionControllers.clear();
+      for (int i = 0; i < _numberOfRooms; i++) {
+        _surfaceControllers.add(TextEditingController());
+        _descriptionControllers.add(TextEditingController());
+      }
+
       // Initialize or trim bedCount list
       bedCount = List.filled(_numberOfRooms, 0);
-      // Initialize _selectedBeds to match the number of rooms
+      // Initialize or update the room list based on number of rooms
       _selectedBeds = List.generate(
-          _numberOfRooms,
-          (index) => {
-                "@id": "",
-                "@type": "Item",
-                "space": "",
-                "type": "Meuble",
-                "isActif": true,
-              });
+        _numberOfRooms,
+        (index) => {
+          "@id": "",
+          "@type": "Piece",
+          "description": "",
+          "surface": "",
+          "items": [],
+          "isActif": true,
+        },
+      );
     });
   }
 
@@ -167,6 +185,30 @@ class _PropertyFormState extends State<PropertyForm> {
     // Add more items as needed
   ];
 
+  List<File> _images = [];
+
+  late Future<List<ElementTypeModel>> futureElementTypes;
+  List<String> _typeOfImmo = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAndPopulateElementTypes();
+  }
+
+  Future<void> fetchAndPopulateElementTypes() async {
+    try {
+      List<ElementTypeModel> elementTypes =
+          await MonimbaDbService().fetchElementType();
+
+      setState(() {
+        _typeOfImmo = elementTypes.map((element) => element.name).toList();
+      });
+    } catch (e) {
+      Logger().e('Error fetching element types: $e');
+    }
+  }
+
   @override
   void dispose() {
     _roomsController.dispose();
@@ -182,56 +224,116 @@ class _PropertyFormState extends State<PropertyForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: const AssetImage(kHomePattern),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(
-            Colors.black
-                .withOpacity(0.5), // Adjust the opacity for less visibility
-            BlendMode.darken,
-          ),
-        ),
-        gradient: LinearGradient(
-          colors: [
-            Colors.black.withOpacity(0.3), // Gradient color
-            Colors.transparent,
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-        ),
-      ),
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.82,
-              child: PageView(
-                controller: _pageController,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  // Step 1: Property Details & Location Details
-                  _buildPropertyDetails(),
-                  // Step 2: Additional Info
-                  _buildAdditionalInfo(),
-                  // Step 3: Upload Images
-                  _buildUploadImages(),
-                ],
-              ),
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: !_showVerifyView ? Column(
+        children: [
+          
+          SizedBox(
+            height: MediaQuery.of(context).size.height * 0.82,
+            child: PageView(
+              controller: _pageController,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                // Step 1: Property Details & Location Details
+                _buildPropertyDetails(),
+                // Step 2: Additional Info
+                _buildAdditionalInfo(),
+                // Step 3: Upload Images
+                _buildUploadImages(),
+              ],
             ),
-            _buildNavigationButtons(),
+          ),
+          _buildNavigationButtons(),
+        ],
+      ) : Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Text(
+                'Récap de votre bien',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                  color: kTitleColor,
+                ),
+              ),
+              SizedBox(height: 2.h,),
+              _buildRecapRow(label: 'Type de service : ', value: _isForSale ? 'En Vente' : 'En Location'),
+              SizedBox(height: 1.h,),
+              _buildRecapRow(label: 'Nom du bien : ', value: _nameController.text),
+              SizedBox(height: 1.h,),
+              _buildRecapRow(label: 'Prix : ', value: "${_priceController.text} GNF"),
+              SizedBox(height: 1.h,),
+              _buildRecapRow(label: 'Taille : ', value: "${_sizeController.text} M²"),
+              SizedBox(height: 1.h,),
+              _buildRecapRow(label: 'Région et ville : ', value: "${_selectedRegion.toString()}, $_selectedCity Guinée" ),
+              SizedBox(height: 1.h,),
+              _buildRecapRow(label: 'Nb. de chambre : ', value: _roomsController.text),
+              SizedBox(height: 1.h,),
+              // _buildRecapRow(label: 'Nb. de lits : ', value: bedCount.toString()),
+              // SizedBox(height: 1.h,),
+
+              Text(
+                'Photo(s) de votre bien',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.bold,
+                  color: kTertiaryColor,
+                ),
+              ),
+
+              SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: SizedBox(
+                  height: 45.h,
+                  child: GridView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 10.0,
+                            crossAxisSpacing: 5.0),
+                    itemCount: _images.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return GestureDetector(
+                        onTap: () => _removeImage(index),
+                        child: Container(
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border:
+                                    Border.all(color: kBtnsColor, width: 0.5),
+                                borderRadius: BorderRadius.circular(32)),
+                            child: Image.file(
+                              _images[index],
+                            )),
+                      );
+                    },
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
+  Widget _buildRecapRow({ required String label , required String value}) {
+    return Row(
+              children: [
+                Text(label, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12.sp,),),
+                Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp,),),
+              ],
+            );
+  }
+
   Widget _buildPropertyDetails() {
     return Card(
       margin: const EdgeInsets.all(16),
-      elevation: 4,
+      elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
@@ -249,26 +351,28 @@ class _PropertyFormState extends State<PropertyForm> {
               ),
             ),
             SizedBox(height: 2.h),
-Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Text(
-      _isForSale ? 'Vente' : 'Location',
-      style: TextStyle(fontSize: 16.sp, color: kTitleColor, fontWeight: FontWeight.bold),
-    ),
-    Switch(
-      value: _isForSale,
-      onChanged: (bool value) {
-        setState(() {
-          _isForSale = value;
-        });
-      },
-      activeColor: kTertiaryColor,
-    ),
-  ],
-),
-SizedBox(height: 2.h),
-
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _isForSale ? 'Vente' : 'Location',
+                  style: TextStyle(
+                      fontSize: 16.sp,
+                      color: kTitleColor,
+                      fontWeight: FontWeight.bold),
+                ),
+                Switch(
+                  value: _isForSale,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _isForSale = value;
+                    });
+                  },
+                  activeColor: kTertiaryColor,
+                ),
+              ],
+            ),
+            SizedBox(height: 2.h),
             _buildTextField(
               'Nom du bien',
               controller: _nameController,
@@ -328,7 +432,7 @@ SizedBox(height: 2.h),
   Widget _buildAdditionalInfo() {
     return Card(
       margin: const EdgeInsets.all(16),
-      elevation: 4,
+      elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
@@ -360,6 +464,7 @@ SizedBox(height: 2.h),
               SizedBox(height: 2.h),
               TextField(
                 controller: _descriptionController,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: 'Description',
                   labelStyle: const TextStyle(color: kTertiaryColor),
@@ -388,6 +493,7 @@ SizedBox(height: 2.h),
               SizedBox(height: 2.h),
               TextField(
                 controller: _roomsController,
+                textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: 'Nombre de pièces ou chambre',
                   labelStyle: const TextStyle(color: kTertiaryColor),
@@ -437,6 +543,9 @@ SizedBox(height: 2.h),
                       child: Column(
                         children: [
                           TextField(
+                            controller: _surfaceControllers[i],
+                            keyboardType: TextInputType.number,
+                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               labelText: 'Surface',
                               labelStyle:
@@ -444,18 +553,24 @@ SizedBox(height: 2.h),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                    color: kTertiaryColor, width: 2),
+                                  color: kTertiaryColor,
+                                  width: 2,
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(
-                                    color: kTertiaryColor.withOpacity(0.5),
-                                    width: 1),
+                                  color: kTertiaryColor.withOpacity(0.5),
+                                  width: 1,
+                                ),
                               ),
                             ),
                           ),
                           SizedBox(height: 2.h),
                           TextField(
+                            controller: _descriptionControllers[i],
+                            keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.next,
                             decoration: InputDecoration(
                               labelText: 'Description',
                               labelStyle:
@@ -463,18 +578,20 @@ SizedBox(height: 2.h),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                    color: kTertiaryColor, width: 2),
+                                  color: kTertiaryColor,
+                                  width: 2,
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(
-                                    color: kTertiaryColor.withOpacity(0.5),
-                                    width: 1),
+                                  color: kTertiaryColor.withOpacity(0.5),
+                                  width: 1,
+                                ),
                               ),
                             ),
                           ),
                           SizedBox(height: 2.h),
-                          // Numbers of bedrooms
                           TextField(
                             controller: _bedRoomControllers[i],
                             decoration: InputDecoration(
@@ -484,63 +601,70 @@ SizedBox(height: 2.h),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                    color: kTertiaryColor, width: 2),
+                                  color: kTertiaryColor,
+                                  width: 2,
+                                ),
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(
-                                    color: kTertiaryColor.withOpacity(0.5),
-                                    width: 1),
+                                  color: kTertiaryColor.withOpacity(0.5),
+                                  width: 1,
+                                ),
                               ),
                               errorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                    color: Colors.red, width: 1),
+                                  color: Colors.red,
+                                  width: 1,
+                                ),
                               ),
                               focusedErrorBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: const BorderSide(
-                                    color: Colors.red, width: 2),
+                                  color: Colors.red,
+                                  width: 2,
+                                ),
                               ),
                             ),
                             keyboardType: TextInputType.number,
                             onChanged: (value) {
-                              Logger().i("Value $value");
-                              // setState(() {
-                              //   // bedCount[i] = int.tryParse(value) ?? 0;
-                              //   bedCount = int.tryParse(value) ?? 0;
-                              // });
-
                               setState(() {
-                                // Ensure the bedCount list is long enough
-                                if (i >= bedCount.length) {
-                                  bedCount.add(0);
-                                }
-                                bedCount[i] = int.tryParse(value) ??
-                                    0; // Store the count of beds for the current room
+                                // Ensure bedCount and _selectedBeds are correctly initialized
+                                bedCount[i] = int.tryParse(value) ?? 0;
 
-                                // Ensure _selectedBeds has enough entries
-                                if (_selectedBeds.length <= i) {
-                                  _selectedBeds.add({});
+                                // Initialize the 'space' list in _selectedBeds if not present
+                                if (_selectedBeds[i]['space'] == null) {
+                                  _selectedBeds[i]['space'] =
+                                      List.filled(bedCount[i], '');
+                                } else {
+                                  // Resize the 'space' list if necessary
+                                  if (_selectedBeds[i]['space'].length <
+                                      bedCount[i]) {
+                                    _selectedBeds[i]['space'].addAll(
+                                      List.filled(
+                                          (bedCount[i] -
+                                                  _selectedBeds[i]['space']
+                                                      .length)
+                                              .toInt(),
+                                          ''),
+                                    );
+                                  } else if (_selectedBeds[i]['space'].length >
+                                      bedCount[i]) {
+                                    _selectedBeds[i]['space'].removeRange(
+                                        bedCount[i],
+                                        _selectedBeds[i]['space'].length);
+                                  }
                                 }
-                                // Initialize or update _selectedBeds['numberOfBeds']
-                                if (_selectedBeds[i]['beds'] == null) {
-                                  _selectedBeds[i]['beds'] = [];
-                                }
-
-                                _selectedBeds[i]["numberOfBeds"] =
-                                    bedCount[i]; // Update _selectedBeds too
                               });
                             },
                           ),
-
                           const SizedBox(
                               height:
                                   8), // Space between TextField and Dropdowns
 
-                          // Display dropdowns for selected number of beds
+                          // Display dropdowns for each bed in the room
                           for (int j = 0; j < bedCount[i]; j++)
-                            // for (int j = 0; j < bedCount; j++)
                             Column(
                               children: [
                                 _buildDropdownField(
@@ -550,35 +674,31 @@ SizedBox(height: 2.h),
                                       .toList(),
                                   onChanged: (selectedBed) {
                                     setState(() {
-                                      // Handle dropdown selection change if needed
-                                      // if (selectedBed != null) {
-                                      //   if (_selectedBeds.length <= i) {
-                                      //     _selectedBeds.add(
-                                      //         {}); // Ensure _selectedBeds has enough entries
-                                      //   }
-                                      //   _selectedBeds[i]['space'] =
-                                      //       selectedBed; // Save selected bed type
-                                      // }
-
+                                      // Check if the selectedBed is not null
                                       if (selectedBed != null) {
-                                        if (_selectedBeds[i]['beds'].length <=
+                                        // If there are not enough items, add a new one
+                                        if (_selectedBeds[i]['items'].length <=
                                             j) {
-                                          _selectedBeds[i]['beds'].add(
-                                              selectedBed); // Add new bed selection
+                                          _selectedBeds[i]['items'].add({
+                                            "@id":
+                                                "", // You can generate or assign an ID if needed
+                                            "@type": "Item",
+                                            "space": selectedBed,
+                                            "type": "Meuble",
+                                            "isActif": true,
+                                          });
                                         } else {
-                                          _selectedBeds[i]['beds'][j] =
-                                              selectedBed; // Update existing bed selection
+                                          // Update the existing item's space
+                                          _selectedBeds[i]['items'][j]
+                                              ['space'] = selectedBed;
                                         }
                                       }
                                     });
                                   },
-                                  value: (_selectedBeds[i]['beds'].length > j)
-                                      ? _selectedBeds[i]['beds'][j]
+                                  value: (_selectedBeds[i]['items'].length > j)
+                                      ? _selectedBeds[i]['items'][j][
+                                          'space'] // Update to reflect the correct space
                                       : null,
-                                  // value: _selectedBeds.isNotEmpty &&
-                                  //         _selectedBeds[i]['space'] != null
-                                  //     ? _selectedBeds[i]['space']
-                                  //     : null,
                                 ),
                                 SizedBox(height: 2.h),
                               ],
@@ -595,8 +715,12 @@ SizedBox(height: 2.h),
                 onPressed: () {
                   Map<String, dynamic> propertyDetails = {
                     'name': _nameController.text,
-                    'content': _contentController.text.isNotEmpty ? _contentController.text : 'Aucune description',
-                    'description': _descriptionController.text.isNotEmpty ? _descriptionController.text : 'Aucune description',
+                    'content': _contentController.text.isNotEmpty
+                        ? _contentController.text
+                        : 'Aucun contenu',
+                    'description': _descriptionController.text.isNotEmpty
+                        ? _descriptionController.text
+                        : 'Aucune description',
                     'price': double.tryParse(_priceController.text) ?? 0,
                     'size': double.tryParse(_sizeController.text) ?? 0,
                     'locate': _selectedRegion,
@@ -605,7 +729,7 @@ SizedBox(height: 2.h),
                     'verified': 'false',
                     'desired': _isForSale ? 'Vente' : 'Location',
                     'images': [],
-                    'pieces': [],
+                    'pieces': _createPieces(),
                     'elementType': {
                       "@id":
                           "/api/element_types/1ef8536b-b487-6962-ad71-050592d463df",
@@ -613,12 +737,18 @@ SizedBox(height: 2.h),
                       "name": _selectedType,
                       "isActif": true
                     },
-                    'user': {},
+                    // 'user': {},
                     'category': {},
                     'isActif': false,
                   };
                   Logger().i("Property detail(s) :");
                   Logger().i(propertyDetails);
+
+                  Logger().i("Property Room(s) detail(s) :");
+                  Logger().i("Nb of room : $_numberOfRooms");
+                  Logger().i("Nb of bed : $bedCount");
+                  Logger().i("Selected of bed :");
+                  Logger().i(_selectedBeds);
                 },
                 icon: const Icon(Icons.arrow_back),
                 label: const Text('Tester'),
@@ -639,10 +769,33 @@ SizedBox(height: 2.h),
     );
   }
 
+  List<Map<String, dynamic>> _createPieces() {
+    List<Map<String, dynamic>> pieces = [];
+
+    for (int i = 0; i < _numberOfRooms; i++) {
+      pieces.add({
+        "@id":
+            "/api/pieces/${_generateUniqueId()}", // Generate unique ID for each piece
+        "@type": "Piece",
+        "description": _descriptionControllers[i].text,
+        "surface": _surfaceControllers[i].text,
+        "items": _selectedBeds[i]['items'],
+        "isActif": true,
+      });
+    }
+
+    return pieces;
+  }
+
+// Helper method to generate a unique ID
+  String _generateUniqueId() {
+    return DateTime.now().millisecondsSinceEpoch.toString();
+  }
+
   Widget _buildUploadImages() {
     return Card(
       margin: const EdgeInsets.all(16),
-      elevation: 4,
+      elevation: 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
@@ -666,20 +819,23 @@ SizedBox(height: 2.h),
               child: IconButton(
                 icon:
                     const Icon(Icons.add_a_photo, size: 40, color: kBtnsColor),
-                onPressed: () {},
+                onPressed: () {
+                  _showChoiceDialog(context);
+                },
               ),
             ),
             const SizedBox(height: 10),
-            const Center(
-              child: Text(
-                "Veuillez charger les images du bien",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black54,
+            if (_images.isEmpty)
+              const Center(
+                child: Text(
+                  "Veuillez charger les images du bien",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
-            ),
             const SizedBox(height: 15),
             const Center(
               child: Text(
@@ -691,10 +847,137 @@ SizedBox(height: 2.h),
               ),
             ),
             SizedBox(height: 2.h),
+            if (_images.isNotEmpty)
+              SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: SizedBox(
+                  height: 55.h,
+                  child: GridView.builder(
+                    physics: const BouncingScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 10.0,
+                            crossAxisSpacing: 5.0),
+                    itemCount: _images.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return GestureDetector(
+                        onTap: () => _removeImage(index),
+                        child: Container(
+                            padding: const EdgeInsets.all(8.0),
+                            decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                border:
+                                    Border.all(color: kBtnsColor, width: 0.5),
+                                borderRadius: BorderRadius.circular(32)),
+                            child: Image.file(
+                              _images[index],
+                            )),
+                      );
+                    },
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _showChoiceDialog(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius:
+                BorderRadius.circular(20), // Rounded corners for modern look
+          ),
+          title: Row(
+            children: [
+              const Icon(Icons.image, color: kTertiaryColor),
+              SizedBox(width: 1.w),
+              Text(
+                'Choix de l\'image',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.sp),
+              ),
+            ],
+          ),
+          content: Text(
+            'Voulez-vous choisir une image depuis la galerie ou prendre une nouvelle photo ?',
+            style:
+                TextStyle(fontSize: 12.sp), // Adjust font size for readability
+          ),
+          actionsPadding: const EdgeInsets.symmetric(
+              horizontal: 10), // Padding for button placement
+          actions: [
+            TextButton.icon(
+              icon: const Icon(Icons.photo_library, color: kBtnsColor),
+              label: Text(
+                'Galerie Photo',
+                style: TextStyle(
+                  color: kTertiaryColor,
+                  fontSize: 13.sp,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _selectImageFromGallery();
+              },
+            ),
+            TextButton.icon(
+              icon: const Icon(Icons.camera_alt, color: kBtnsColor),
+              label: Text(
+                'Caméra',
+                style: TextStyle(
+                  color: kTertiaryColor,
+                  fontSize: 13.sp,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _takeNewPhoto();
+              },
+            ),
+            TextButton(
+              child: Text(
+                'Annuler',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 12.sp,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _selectImageFromGallery() async {
+    final List<XFile> images = await ImagePicker().pickMultiImage();
+    setState(() {
+      _images.addAll(images.map((xFile) => File(xFile.path)));
+    });
+  }
+
+  Future<void> _takeNewPhoto() async {
+    final XFile? image =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+    if (image != null) {
+      setState(() {
+        _images.add(File(image.path));
+      });
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _images.removeAt(index);
+    });
   }
 
   Widget _buildTextField(String label,
@@ -703,6 +986,7 @@ SizedBox(height: 2.h),
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
+      textInputAction: TextInputAction.next,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: kTertiaryColor),
@@ -823,7 +1107,11 @@ SizedBox(height: 2.h),
             ),
           ),
           ElevatedButton.icon(
-            onPressed: _currentStep == 3 ? () {} : null,
+            onPressed: _currentStep == 3 ? () {
+              setState(() {
+              _showVerifyView = true;
+              });
+            } : null,
             icon: const Icon(Icons.check),
             label: const Text('Verifié'),
             style: ElevatedButton.styleFrom(
