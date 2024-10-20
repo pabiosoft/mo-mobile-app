@@ -59,26 +59,28 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
       ),
       body: SafeArea(
         child: Container(
-          decoration:  BoxDecoration(
-      image: DecorationImage(
-        image: const AssetImage(kHomePattern),
-        fit: BoxFit.cover,
-        colorFilter: ColorFilter.mode(
-          Colors.black.withOpacity(0.5), // Adjust the opacity for less visibility
-          BlendMode.darken,
-        ),
-      ),
-      gradient: LinearGradient(
-        colors: [
-          Colors.black.withOpacity(0.3), // Gradient color
-          Colors.transparent,
-        ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      ),
-    ),
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: const AssetImage(kHomePattern),
+              fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                Colors.black
+                    .withOpacity(0.5), // Adjust the opacity for less visibility
+                BlendMode.darken,
+              ),
+            ),
+            gradient: LinearGradient(
+              colors: [
+                Colors.black.withOpacity(0.3), // Gradient color
+                Colors.transparent,
+              ],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.start,
@@ -89,12 +91,15 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
                   child: FutureBuilder<List<ElementModel>>(
                       future: userElements,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
                           return buildMyRealEstateShimmerEffectGridView();
                         } else if (snapshot.hasError) {
                           Logger().e('Erreur: ${snapshot.error}');
-                          return Center(child: Text("Erreur: ${snapshot.error}"));
-                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return Center(
+                              child: Text("Erreur: ${snapshot.error}"));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
                           return const EmptyState(
                             text: "Vos n'avez aucun bien pour le moment",
                           );
@@ -142,17 +147,21 @@ class _MyRealEstateScreenState extends State<MyRealEstateScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MyRealEstateCRUD(),
-            ),
-          );
-        },
-        backgroundColor: kBtnsColor,
-        label: const Icon(Icons.home),
+      floatingActionButton: Align(
+        alignment: Alignment.bottomRight,
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => MyRealEstateCRUD()));
+          },
+          style: ElevatedButton.styleFrom(
+            primary: kBtnsColor, // Button color
+            shape: const CircleBorder(), // Circular shape
+            padding: const EdgeInsets.all(20), // Padding for larger touch area
+            elevation: 5, // Shadow effect
+          ),
+          child: const Icon(Icons.home, color: Colors.white), // Button icon
+        ),
       ),
     );
   }
@@ -225,9 +234,9 @@ class PropertyCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(25),
           child: Container(
             color: Colors.white,
-            padding: EdgeInsets.all(2.0),
+            padding: const EdgeInsets.all(2.0),
             child: ClipRRect(
-          borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.circular(25),
               child: Image.network(
                 element.imageUrl != ''
                     ? 'https://abc.monimba.com/${element.imageUrl}'
@@ -241,11 +250,10 @@ class PropertyCard extends StatelessWidget {
         ),
         SizedBox(height: 1.h),
         Container(
-            padding: EdgeInsets.all(4.0),
-            decoration: BoxDecoration(
-            color: Colors.white,
-              borderRadius: BorderRadius.all(Radius.circular(6.0))
-            ),
+          padding: const EdgeInsets.all(4.0),
+          decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(6.0))),
           child: Column(
             children: [
               SizedBox(
@@ -259,32 +267,31 @@ class PropertyCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-               SizedBox(
-          width: 50.w,
-          child: Text(
-            element.name,
-            style: TextStyle(
-              fontSize: 11.sp,
-              fontWeight: FontWeight.w100,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        SizedBox(
-          width: 50.w,
-          child: Text(
-            '${element.size} M²',
-            style: TextStyle(
-              fontSize: 9.sp,
-              fontWeight: FontWeight.w300,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
+              SizedBox(
+                width: 50.w,
+                child: Text(
+                  element.name,
+                  style: TextStyle(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w100,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              SizedBox(
+                width: 50.w,
+                child: Text(
+                  '${element.size} M²',
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    fontWeight: FontWeight.w300,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
         ),
-       
       ],
     );
   }

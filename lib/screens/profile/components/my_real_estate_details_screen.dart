@@ -20,29 +20,41 @@ class _MyRealEstateDetailsScreenState extends State<MyRealEstateDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kbackGreyColor,
-      appBar: AppBar(
-        backgroundColor: kBtnsColor,
-        elevation: 0,
-        brightness: Brightness.light,
+        backgroundColor: kbackGreyColor,
+        appBar: AppBar(
+          backgroundColor: kbackGreyColor,
+          elevation: 0,
+          brightness: Brightness.light,
         leading: GestureDetector(
           onTap: () {
             Navigator.pop(context);
           },
           child: Icon(
             Icons.arrow_back_ios_new,
-            color: kPrimaryColor,
+            color: kTertiaryColor,
             size: 22.sp,
           ),
         ),
         title: Text(
-          "Details ${widget.element.name}",
+          "Details de la propriete",
           style: TextStyle(
-            color: kPrimaryColor,
+            color: kTertiaryColor,
             fontSize: 16.sp,
           ),
         ),
         centerTitle: true,
+          actions: [
+            Container(
+                padding: const EdgeInsets.all(8.0),
+                margin: EdgeInsets.symmetric(horizontal: 2.w),
+                decoration: const BoxDecoration(
+                    color: Colors.white, shape: BoxShape.circle),
+                child: Center(
+                    child: Image.asset(
+                  kLogoMoNimbaPath,
+                  width: 8.w,
+                )))
+          ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -76,82 +88,96 @@ class _MyRealEstateDetailsScreenState extends State<MyRealEstateDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(
-                  "${widget.element.name}, ${widget.element.city} Guinée",
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                // margin: EdgeInsets.symmetric(horizontal: 2.w),
+                decoration:  BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10.0)
+                    ),
+                  child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "${widget.element.name}, ${widget.element.city} Guinée",
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.element.content,
+                    style: TextStyle(color: Colors.grey, fontSize: 12.sp),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  widget.element.content,
-                  style: TextStyle(color: Colors.grey, fontSize: 12.sp),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildInfoColumn(widget.element.size, "ha", "Sup. Terrain"),
-                    _buildInfoColumn("X", "", "Nb. de lits"),
-                    _buildInfoColumn("X", "", "Nb. de chambres"),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  widget.element.description,
-                  style: TextStyle(fontSize: 14.sp, color: Colors.grey),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      children: [
-                        SizedBox(
-                          width: 50.w,
-                          child: Text(
-                            "${NumberFormat("#,##0", "en_US").format(int.parse(widget.element.price)).replaceAll(',', '.')} gnf",
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.bold,
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildInfoColumn(widget.element.size, "ha", "Sup. Terrain"),
+                      _buildInfoColumn("X", "", "Nb. de lits"),
+                      _buildInfoColumn("X", "", "Nb. de chambres"),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    widget.element.description,
+                    style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          SizedBox(
+                            width: 50.w,
+                            child: Text(
+                              "${NumberFormat("#,##0", "en_US").format(int.parse(widget.element.price)).replaceAll(',', '.')} gnf",
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(
+                            width: 50.w,
+                            child: Text(
+                              widget.element.desired == 'Location'
+                                  ? "prix nuité"
+                                  : "prix achat",
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      ElevatedButton(
+                        onPressed: () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kBtnsColor,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15.0, vertical: 15.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        SizedBox(
-                          width: 50.w,
-                          child: Text(
-                            widget.element.desired == 'Location'
-                                ? "prix nuité"
-                                : "prix achat",
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: kBtnsColor,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 40.0, vertical: 15.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
+                        child: const Text(
+                          "Modifier",
+                          style: TextStyle(fontSize: 18),
                         ),
                       ),
-                      child: const Text(
-                        "Editer",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                              
+                    ],
+                  ),
+                ),],
             ),
           ),
         ),

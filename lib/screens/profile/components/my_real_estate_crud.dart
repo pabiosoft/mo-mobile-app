@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -226,179 +227,220 @@ class _PropertyFormState extends State<PropertyForm> {
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
-      child: !_showVerifyView ? Column(
-        children: [
-          
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.82,
-            child: PageView(
-              controller: _pageController,
-              physics: const NeverScrollableScrollPhysics(),
+      child: !_showVerifyView
+          ? Column(
               children: [
-                // Step 1: Property Details & Location Details
-                _buildPropertyDetails(),
-                // Step 2: Additional Info
-                _buildAdditionalInfo(),
-                // Step 3: Upload Images
-                _buildUploadImages(),
-              ],
-            ),
-          ),
-          _buildNavigationButtons(),
-        ],
-      ) : Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-                'Récap de votre bien',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
-                  color: kTitleColor,
-                ),
-              ),
-              SizedBox(height: 2.h,),
-              _buildRecapRow(label: 'Type de service : ', value: _isForSale ? 'En Vente' : 'En Location'),
-              SizedBox(height: 1.h,),
-              _buildRecapRow(label: 'Nom du bien : ', value: _nameController.text),
-              SizedBox(height: 1.h,),
-              _buildRecapRow(label: 'Prix : ', value: "${_priceController.text} GNF"),
-              SizedBox(height: 1.h,),
-              _buildRecapRow(label: 'Taille : ', value: "${_sizeController.text} M²"),
-              SizedBox(height: 1.h,),
-              _buildRecapRow(label: 'Région et ville : ', value: "${_selectedRegion.toString()}, $_selectedCity Guinée" ),
-              SizedBox(height: 1.h,),
-              _buildRecapRow(label: 'Nb. de chambre : ', value: _roomsController.text),
-              SizedBox(height: 1.h,),
-              // _buildRecapRow(label: 'Nb. de lits : ', value: bedCount.toString()),
-              // SizedBox(height: 1.h,),
-
-              Text(
-                'Photo(s) de votre bien',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.bold,
-                  color: kTertiaryColor,
-                ),
-              ),
-
-              SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: SizedBox(
-                  height: 45.h,
-                  child: GridView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 10.0,
-                            crossAxisSpacing: 5.0),
-                    itemCount: _images.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () => _removeImage(index),
-                        child: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                border:
-                                    Border.all(color: kBtnsColor, width: 0.5),
-                                borderRadius: BorderRadius.circular(32)),
-                            child: Image.file(
-                              _images[index],
-                            )),
-                      );
-                    },
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.82,
+                  child: PageView(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      // Step 1: Property Details & Location Details
+                      _buildPropertyDetails(),
+                      // Step 2: Additional Info
+                      _buildAdditionalInfo(),
+                      // Step 3: Upload Images
+                      _buildUploadImages(),
+                    ],
                   ),
                 ),
+                _buildNavigationButtons(),
+              ],
+            )
+          : Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    'Récap de votre bien',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.bold,
+                      color: kTitleColor,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 2.h,
+                  ),
+                  _buildRecapRow(
+                      label: 'Type de service : ',
+                      value: _isForSale ? 'En Vente' : 'En Location'),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  _buildRecapRow(
+                      label: 'Nom du bien : ', value: _nameController.text),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  _buildRecapRow(
+                      label: 'Prix : ', value: "${_priceController.text} GNF"),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  _buildRecapRow(
+                      label: 'Taille : ', value: "${_sizeController.text} M²"),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  _buildRecapRow(
+                      label: 'Région et ville : ',
+                      value:
+                          "${_selectedRegion.toString()}, $_selectedCity Guinée"),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  _buildRecapRow(
+                      label: 'Nb. de chambre : ', value: _roomsController.text),
+                  SizedBox(
+                    height: 1.h,
+                  ),
+                  // _buildRecapRow(label: 'Nb. de lits : ', value: bedCount.toString()),
+                  // SizedBox(height: 1.h,),
+
+                  Text(
+                    'Photo(s) de votre bien',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.bold,
+                      color: kTertiaryColor,
+                    ),
+                  ),
+
+                  SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: SizedBox(
+                      height: 45.h,
+                      child: GridView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                mainAxisSpacing: 10.0,
+                                crossAxisSpacing: 5.0),
+                        itemCount: _images.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return GestureDetector(
+                            onTap: () => _removeImage(index),
+                            child: Container(
+                                padding: const EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                    color: Colors.transparent,
+                                    border: Border.all(
+                                        color: kBtnsColor, width: 0.5),
+                                    borderRadius: BorderRadius.circular(32)),
+                                child: Image.file(
+                                  _images[index],
+                                )),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ],
               ),
-          ],
-        ),
-      ),
+            ),
     );
   }
 
-  Widget _buildRecapRow({ required String label , required String value}) {
+  Widget _buildRecapRow({required String label, required String value}) {
     return Row(
-              children: [
-                Text(label, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12.sp,),),
-                Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp,),),
-              ],
-            );
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 12.sp,
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 12.sp,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildPropertyDetails() {
     return Card(
       margin: const EdgeInsets.all(16),
-      elevation: 1,
+      elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Détails du Bien',
               style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
                 color: kTitleColor,
               ),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 1.h),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   _isForSale ? 'Vente' : 'Location',
                   style: TextStyle(
-                      fontSize: 16.sp,
-                      color: kTitleColor,
-                      fontWeight: FontWeight.bold),
+                    fontSize: 16.sp,
+                    color: kTertiaryColor,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                Switch(
-                  value: _isForSale,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _isForSale = value;
-                    });
-                  },
-                  activeColor: kTertiaryColor,
+                Transform.scale(
+                  scale: 1.2,
+                  child: Switch(
+                    value: _isForSale,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _isForSale = value;
+                      });
+                    },
+                    activeColor: kTertiaryColor,
+                  ),
                 ),
               ],
             ),
+            Divider(thickness: 1, color: Colors.grey[300]),
             SizedBox(height: 2.h),
             _buildTextField(
               'Nom du bien',
               controller: _nameController,
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 2.5.h),
             _buildTextField(
               'Prix',
               keyboardType: TextInputType.number,
               controller: _priceController,
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 2.5.h),
             _buildTextField(
               'Taille en M²',
               keyboardType: TextInputType.number,
               controller: _sizeController,
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 2.5.h),
             Text(
               'Localisation du Bien',
               style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
                 color: kTitleColor,
               ),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 3.h),
             _buildDropdownField(
               hint: "Sélectionnez une région",
               items: _regions,
@@ -406,12 +448,12 @@ class _PropertyFormState extends State<PropertyForm> {
                 setState(() {
                   _selectedRegion = selectedRegion;
                   _cities = _regionCityMap[selectedRegion!]!;
-                  _selectedCity = null; // Reset city when region changes
+                  _selectedCity = null;
                 });
               },
               value: _selectedRegion,
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 2.5.h),
             _buildDropdownField(
               hint: "Sélectionnez une ville",
               items: _cities,
@@ -422,7 +464,7 @@ class _PropertyFormState extends State<PropertyForm> {
               },
               value: _selectedCity,
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 3.h),
           ],
         ),
       ),
@@ -432,21 +474,22 @@ class _PropertyFormState extends State<PropertyForm> {
   Widget _buildAdditionalInfo() {
     return Card(
       margin: const EdgeInsets.all(16),
-      elevation: 1,
+      elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Informations Supplémentaires',
+                'Info. Supplémentaires',
                 style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
                   color: kTitleColor,
                 ),
               ),
@@ -466,7 +509,7 @@ class _PropertyFormState extends State<PropertyForm> {
                 controller: _descriptionController,
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
-                  labelText: 'Description',
+                  labelText: 'Ajouter une description complete de votre bien',
                   labelStyle: const TextStyle(color: kTertiaryColor),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -491,8 +534,11 @@ class _PropertyFormState extends State<PropertyForm> {
                 maxLines: 3,
               ),
               SizedBox(height: 2.h),
+              Divider(thickness: 1, color: Colors.grey[300]),
+              SizedBox(height: 2.h),
               TextField(
                 controller: _roomsController,
+                cursorColor: kTertiaryColor,
                 textInputAction: TextInputAction.next,
                 decoration: InputDecoration(
                   labelText: 'Nombre de pièces ou chambre',
@@ -537,173 +583,201 @@ class _PropertyFormState extends State<PropertyForm> {
                     Container(
                       padding: const EdgeInsets.all(8.0),
                       decoration: BoxDecoration(
-                        color: kTertiaryColor.withOpacity(0.1),
+                        color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(15),
+                        border: Border.all(
+                          color: Colors.deepOrange.withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                            offset: const Offset(2, 2),
+                          ),
+                        ],
                       ),
-                      child: Column(
-                        children: [
-                          TextField(
-                            controller: _surfaceControllers[i],
-                            keyboardType: TextInputType.number,
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'Surface',
-                              labelStyle:
-                                  const TextStyle(color: kTertiaryColor),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: kTertiaryColor,
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: kTertiaryColor.withOpacity(0.5),
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 2.h),
-                          TextField(
-                            controller: _descriptionControllers[i],
-                            keyboardType: TextInputType.text,
-                            textInputAction: TextInputAction.next,
-                            decoration: InputDecoration(
-                              labelText: 'Description',
-                              labelStyle:
-                                  const TextStyle(color: kTertiaryColor),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: kTertiaryColor,
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: kTertiaryColor.withOpacity(0.5),
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: 2.h),
-                          TextField(
-                            controller: _bedRoomControllers[i],
-                            decoration: InputDecoration(
-                              labelText: 'Nombre de lits dans la chambre',
-                              labelStyle:
-                                  const TextStyle(color: kTertiaryColor),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: kTertiaryColor,
-                                  width: 2,
-                                ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                  color: kTertiaryColor.withOpacity(0.5),
-                                  width: 1,
-                                ),
-                              ),
-                              errorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width: 1,
-                                ),
-                              ),
-                              focusedErrorBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: Colors.red,
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (value) {
-                              setState(() {
-                                // Ensure bedCount and _selectedBeds are correctly initialized
-                                bedCount[i] = int.tryParse(value) ?? 0;
-
-                                // Initialize the 'space' list in _selectedBeds if not present
-                                if (_selectedBeds[i]['space'] == null) {
-                                  _selectedBeds[i]['space'] =
-                                      List.filled(bedCount[i], '');
-                                } else {
-                                  // Resize the 'space' list if necessary
-                                  if (_selectedBeds[i]['space'].length <
-                                      bedCount[i]) {
-                                    _selectedBeds[i]['space'].addAll(
-                                      List.filled(
-                                          (bedCount[i] -
-                                                  _selectedBeds[i]['space']
-                                                      .length)
-                                              .toInt(),
-                                          ''),
-                                    );
-                                  } else if (_selectedBeds[i]['space'].length >
-                                      bedCount[i]) {
-                                    _selectedBeds[i]['space'].removeRange(
-                                        bedCount[i],
-                                        _selectedBeds[i]['space'].length);
-                                  }
-                                }
-                              });
-                            },
-                          ),
-                          const SizedBox(
-                              height:
-                                  8), // Space between TextField and Dropdowns
-
-                          // Display dropdowns for each bed in the room
-                          for (int j = 0; j < bedCount[i]; j++)
-                            Column(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(
+                              sigmaX: 10, sigmaY: 10), // Blur effect
+                          child: Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
                               children: [
-                                _buildDropdownField(
-                                  hint: "Sélectionnez un meuble",
-                                  items: bedItems
-                                      .map((item) => item["space"] as String)
-                                      .toList(),
-                                  onChanged: (selectedBed) {
+                                TextField(
+                                  controller: _surfaceControllers[i],
+                                  keyboardType: TextInputType.number,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    labelText: 'Surface',
+                                    labelStyle:
+                                        const TextStyle(color: kTertiaryColor),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: kTertiaryColor,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: kTertiaryColor.withOpacity(0.5),
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 2.h),
+                                TextField(
+                                  controller: _descriptionControllers[i],
+                                  keyboardType: TextInputType.text,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    labelText: 'Description',
+                                    labelStyle:
+                                        const TextStyle(color: kTertiaryColor),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: kTertiaryColor,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: kTertiaryColor.withOpacity(0.5),
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 2.h),
+                                TextField(
+                                  controller: _bedRoomControllers[i],
+                                  decoration: InputDecoration(
+                                    labelText: 'Nombre de lits dans la chambre',
+                                    labelStyle:
+                                        const TextStyle(color: kTertiaryColor),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: kTertiaryColor,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: BorderSide(
+                                        color: kTertiaryColor.withOpacity(0.5),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 1,
+                                      ),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: Colors.red,
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                  keyboardType: TextInputType.number,
+                                  onChanged: (value) {
                                     setState(() {
-                                      // Check if the selectedBed is not null
-                                      if (selectedBed != null) {
-                                        // If there are not enough items, add a new one
-                                        if (_selectedBeds[i]['items'].length <=
-                                            j) {
-                                          _selectedBeds[i]['items'].add({
-                                            "@id":
-                                                "", // You can generate or assign an ID if needed
-                                            "@type": "Item",
-                                            "space": selectedBed,
-                                            "type": "Meuble",
-                                            "isActif": true,
-                                          });
-                                        } else {
-                                          // Update the existing item's space
-                                          _selectedBeds[i]['items'][j]
-                                              ['space'] = selectedBed;
+                                      // Ensure bedCount and _selectedBeds are correctly initialized
+                                      bedCount[i] = int.tryParse(value) ?? 0;
+
+                                      // Initialize the 'space' list in _selectedBeds if not present
+                                      if (_selectedBeds[i]['space'] == null) {
+                                        _selectedBeds[i]['space'] =
+                                            List.filled(bedCount[i], '');
+                                      } else {
+                                        // Resize the 'space' list if necessary
+                                        if (_selectedBeds[i]['space'].length <
+                                            bedCount[i]) {
+                                          _selectedBeds[i]['space'].addAll(
+                                            List.filled(
+                                                (bedCount[i] -
+                                                        _selectedBeds[i]
+                                                                ['space']
+                                                            .length)
+                                                    .toInt(),
+                                                ''),
+                                          );
+                                        } else if (_selectedBeds[i]['space']
+                                                .length >
+                                            bedCount[i]) {
+                                          _selectedBeds[i]['space'].removeRange(
+                                              bedCount[i],
+                                              _selectedBeds[i]['space'].length);
                                         }
                                       }
                                     });
                                   },
-                                  value: (_selectedBeds[i]['items'].length > j)
-                                      ? _selectedBeds[i]['items'][j][
-                                          'space'] // Update to reflect the correct space
-                                      : null,
                                 ),
-                                SizedBox(height: 2.h),
+                                const SizedBox(
+                                    height:
+                                        8), // Space between TextField and Dropdowns
+
+                                // Display dropdowns for each bed in the room
+                                for (int j = 0; j < bedCount[i]; j++)
+                                  Column(
+                                    children: [
+                                      _buildDropdownField(
+                                        hint: "Sélectionnez un meuble",
+                                        items: bedItems
+                                            .map((item) =>
+                                                item["space"] as String)
+                                            .toList(),
+                                        onChanged: (selectedBed) {
+                                          setState(() {
+                                            // Check if the selectedBed is not null
+                                            if (selectedBed != null) {
+                                              // If there are not enough items, add a new one
+                                              if (_selectedBeds[i]['items']
+                                                      .length <=
+                                                  j) {
+                                                _selectedBeds[i]['items'].add({
+                                                  "@id":
+                                                      "", // You can generate or assign an ID if needed
+                                                  "@type": "Item",
+                                                  "space": selectedBed,
+                                                  "type": "Meuble",
+                                                  "isActif": true,
+                                                });
+                                              } else {
+                                                // Update the existing item's space
+                                                _selectedBeds[i]['items'][j]
+                                                    ['space'] = selectedBed;
+                                              }
+                                            }
+                                          });
+                                        },
+                                        value: (_selectedBeds[i]['items']
+                                                    .length >
+                                                j)
+                                            ? _selectedBeds[i]['items'][j][
+                                                'space'] // Update to reflect the correct space
+                                            : null,
+                                      ),
+                                      SizedBox(height: 2.h),
+                                    ],
+                                  ),
                               ],
                             ),
-                        ],
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(height: 2.h),
@@ -795,84 +869,117 @@ class _PropertyFormState extends State<PropertyForm> {
   Widget _buildUploadImages() {
     return Card(
       margin: const EdgeInsets.all(16),
-      elevation: 1,
+      elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20), // Smooth rounded corners
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Image du Bien',
+              'Images du Bien',
               style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+                fontSize:
+                    20.sp, // Slightly larger font size for better emphasis
+                fontWeight: FontWeight.w600,
                 color: kTitleColor,
               ),
             ),
-            SizedBox(height: 2.h),
+            SizedBox(height: 3.h),
 
-            //  Images UPLOAD
+            // Image Upload Button
             Center(
-              child: IconButton(
-                icon:
-                    const Icon(Icons.add_a_photo, size: 40, color: kBtnsColor),
-                onPressed: () {
+              child: GestureDetector(
+                onTap: () {
                   _showChoiceDialog(context);
                 },
-              ),
-            ),
-            const SizedBox(height: 10),
-            if (_images.isEmpty)
-              const Center(
-                child: Text(
-                  "Veuillez charger les images du bien",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black54,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: kBtnsColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: kBtnsColor, width: 2), // Highlighted border
+                  ),
+                  child: const Icon(
+                    Icons.add_a_photo,
+                    size: 40,
+                    color: kBtnsColor,
                   ),
                 ),
               ),
-            const SizedBox(height: 15),
-            const Center(
-              child: Text(
-                'Cliquez sur l\'icône pour télécharger des photos',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey,
+            ),
+
+            SizedBox(height: 3.h),
+
+            // Instruction Text (before uploading images)
+            if (_images.isEmpty)
+              Center(
+                child: Column(
+                  children: const [
+                    Text(
+                      "Veuillez charger les images du bien",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Cliquez sur l\'icône pour télécharger des photos',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            SizedBox(height: 2.h),
+
+            SizedBox(height: 3.h),
+
+            // Grid View for Uploaded Images
             if (_images.isNotEmpty)
               SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 child: SizedBox(
-                  height: 55.h,
+                  height: 50.h,
                   child: GridView.builder(
                     physics: const BouncingScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 10.0,
-                            crossAxisSpacing: 5.0),
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10.0,
+                      crossAxisSpacing: 5.0,
+                      childAspectRatio: 1.0, // Ensures consistent square images
+                    ),
                     itemCount: _images.length,
                     itemBuilder: (BuildContext context, int index) {
                       return GestureDetector(
-                        onTap: () => _removeImage(index),
+                        onTap: () =>
+                            _removeImage(index), // Image removal handler
                         child: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                                color: Colors.transparent,
-                                border:
-                                    Border.all(color: kBtnsColor, width: 0.5),
-                                borderRadius: BorderRadius.circular(32)),
+                          padding: const EdgeInsets.all(8.0),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: kBtnsColor,
+                                width: 1), // Sharper image borders
+                            borderRadius: BorderRadius.circular(
+                                20), // Rounded image corners for a clean look
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(
+                                15), // Ensure image corners match container
                             child: Image.file(
                               _images[index],
-                            )),
+                              fit: BoxFit
+                                  .cover, // Ensures the image fills the space properly
+                            ),
+                          ),
+                        ),
                       );
                     },
                   ),
@@ -1049,6 +1156,7 @@ class _PropertyFormState extends State<PropertyForm> {
           borderSide: const BorderSide(color: Colors.red, width: 2),
         ),
       ),
+      borderRadius: BorderRadius.circular(10.0),
     );
   }
 
@@ -1107,11 +1215,13 @@ class _PropertyFormState extends State<PropertyForm> {
             ),
           ),
           ElevatedButton.icon(
-            onPressed: _currentStep == 3 ? () {
-              setState(() {
-              _showVerifyView = true;
-              });
-            } : null,
+            onPressed: _currentStep == 3
+                ? () {
+                    setState(() {
+                      _showVerifyView = true;
+                    });
+                  }
+                : null,
             icon: const Icon(Icons.check),
             label: const Text('Verifié'),
             style: ElevatedButton.styleFrom(

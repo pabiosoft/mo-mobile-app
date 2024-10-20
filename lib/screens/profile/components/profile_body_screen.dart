@@ -5,6 +5,7 @@ import 'package:logger/logger.dart';
 import 'package:monimba_app/constants.dart';
 import 'package:monimba_app/screens/auth/signin/signin_screen.dart';
 import 'package:monimba_app/screens/profile/components/my_real_estate_screen.dart';
+import 'package:monimba_app/screens/profile/components/pin_creation.dart';
 import 'package:monimba_app/services/database/monimba_db_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
@@ -228,7 +229,13 @@ Future<void> _getPropertyCount() async {
                         text: "Code PIN",
                         isCounter: false,
                         counterValue: "0",
-                        onTap: () {},
+                        onTap: () {
+                           Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PinCreationScreen()));
+                        },
                       ),
                       SizedBox(height: 1.h),
                       InkWell(
